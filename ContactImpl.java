@@ -11,6 +11,12 @@
 	// by the class, not objects. 
 	private static int nextAvailableId = 0; 
 	
+	/**
+	 * Constructs a ContactImpl with the given name and notes about the contact.
+	 *
+	 * @param name the name of the contact
+	 * @param notes notes to be added about this contact
+	 **/
 	public ContactImpl(String name, String notes) {
 		this.name = name;
 		this.notes = notes;
