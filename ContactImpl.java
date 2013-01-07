@@ -7,7 +7,8 @@
  public class ContactImpl implements Contact {
 	private int id;
 	private String name, notes;
-	// nextAvailableId is used to assign IDs to new contacts, is static as it is only needed by the class, not objects. 
+	// nextAvailableId is used to assign IDs to new contacts, is static as it is only needed
+	// by the class, not objects. 
 	private static int nextAvailableId = 0; 
 	
 	public ContactImpl(String name, String notes) {
