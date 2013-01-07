@@ -28,6 +28,7 @@
 	 *
 	 * @return the ID of the contact
 	 **/
+	@Override
 	public int getID() {
 		return id;
 	}
@@ -37,6 +38,7 @@
 	 * 
 	 * @return the name of the contact
 	 **/
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -49,6 +51,7 @@
 	 * 
 	 * @return a string with notes about the contact, maybe empty
 	 **/
+	@Override
 	public String getNotes() {
 		return notes;
 	}
@@ -58,6 +61,7 @@
 	 * 
 	 * @param note the notes to be added
 	 **/
+	@Override
 	public void addNotes(String note) {
 		this.notes = note;
 	}

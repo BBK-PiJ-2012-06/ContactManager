@@ -32,6 +32,7 @@ import java.util.HashSet;
 	 *
 	 * @return the ID of the meeting
 	 **/
+	@Override
 	public int getId() {
 		return id;
 	}
@@ -41,6 +42,7 @@ import java.util.HashSet;
 	 *
 	 * @return the date of the meeting
 	 **/
+	@Override
 	public Calendar getDate() {
 		return date;
 	}
@@ -54,6 +56,7 @@ import java.util.HashSet;
 	 *
 	 * @return the details of people that attended the meeting
 	 **/
+	@Override
 	public Set<Contact> getContacts() {
 		return contacts;
 	}
