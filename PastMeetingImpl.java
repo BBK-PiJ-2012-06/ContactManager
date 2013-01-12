@@ -41,7 +41,7 @@ import java.util.HashSet;
 	 * @param meeting the meeting that has taken place
 	 * @param notes the notes to be added 
 	 **/
-	public PastMeetingImpl(MeetingImpl meeting, String notes) {
+	public PastMeetingImpl(Meeting meeting, String notes) {
 		this.contacts = meeting.getContacts();
 		this.date = meeting.getDate();
 		this.notes = notes;
