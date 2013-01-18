@@ -11,9 +11,6 @@ import java.util.HashSet;
 	private int id;
 	private Calendar date = null;
 	private Set<Contact> contacts = new HashSet<Contact>();
-	// nextAvailableId is used to assign IDs to new meetings, is static as it is 
-	// only needed by the class, not objects.
-	private static int nextAvailableId = 0;
 	// the above is lifted directly from MeetingImpl (as PastMeeting extends Meeting, the
 	// implementation of PastMeeting must implement the methods inherited from Meeting),
 	// the new code here is just for adding text notes.
@@ -27,11 +24,11 @@ import java.util.HashSet;
 	 * @param date the date on which the meeting is to take place
 	 * @param notes the notes to be added 
 	 **/
-	public PastMeetingImpl(Set<Contact> contacts, Calendar date, String notes) {
+	public PastMeetingImpl(int id, Set<Contact> contacts, Calendar date, String notes) {
 		this.contacts = contacts;
 		this.date = date;
 		this.notes = notes;
-		this.id = nextAvailableId++; // assigns nextAvailableId to id, then increments nextAvailableId.
+		this.id = id; 
 	}
 	
 	/**

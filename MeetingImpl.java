@@ -11,9 +11,6 @@ import java.util.HashSet;
 	private int id;
 	private Calendar date = null;
 	private Set<Contact> contacts = new HashSet<Contact>();
-	// nextAvailableId is used to assign IDs to new meetings, is static as it is 
-	// only needed by the class, not objects.
-	private static int nextAvailableId = 0;
 	
 	/**
 	 * Constructs a MeetingImpl with the given set of contacts and date.
@@ -21,10 +18,10 @@ import java.util.HashSet;
 	 * @param contacts the set of contacts attending the meeting
 	 * @param date the date on which the meeting is to take place
 	 **/
-	public MeetingImpl(Set<Contact> contacts, Calendar date) {
+	public MeetingImpl(int id, Set<Contact> contacts, Calendar date) {
 		this.contacts = contacts;
 		this.date = date;
-		this.id = nextAvailableId++; // assigns nextAvailableId to id, then increments nextAvailableId.
+		this.id = id; 
 	}
 	
 	/**
