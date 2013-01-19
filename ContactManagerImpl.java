@@ -1,5 +1,4 @@
 import java.util.*;
-import util.CalendarHandler;
 import java.lang.Exception;
 
 /**
@@ -50,7 +49,7 @@ public class ContactManagerImpl implements ContactManager {
 			throw new IllegalArgumentException("Given set of contacts contains an unknown contact");
 		}
 		
-		// If we've got this far, add the meeting
+		// If we've made it this far, add the meeting
 		int id = next_meeting_id++;
 		meetings.put(id, new MeetingImpl(id, contacts, date));		
 	}
@@ -63,15 +62,20 @@ public class ContactManagerImpl implements ContactManager {
 	 * @throws IllegalArgumentException if there is a meeting with that ID happening in the future
 	 **/
 	public PastMeeting getPastMeeting(int id) {
-		// get() the meeting with this id (if no mapping for id, returns null, which is what we want)
+		// Get the meeting with this id (if no mapping for id, returns null, 
+		// which is the desired behaviour in this case)
 		Meeting requestedMeeting = meetings.get(id);
-		// check date is in past if not null
+		
+		// Check date is in past if not null
 		if(requestedMeeting == null) {
-			return requestedMeeting;
+			return (PastMeeting) requestedMeeting;
 		}
-		// if dateIsInPast
-		//// return requestedMeeting
-		// else throw illegal argument ex
+		
+		if(CalendarHandler.isInPast(requestedMeeting.getDate())) {
+			return (PastMeeting) requestedMeeting;
+		} else {
+			throw new IllegalArgumentException("Requested meeting is on a future date: " + CalendarHandler.format(requestedMeeting.getDate()));
+		}
 	}
 	
 	/**
