@@ -8,9 +8,9 @@ import java.util.HashSet;
  * Meetings have unique IDs, scheduled date and a list of participating contacts.
  **/
  public class MeetingImpl implements Meeting {
-	private int id;
-	private Calendar date = null;
-	private Set<Contact> contacts = new HashSet<Contact>();
+	private final int id;
+	private final Calendar date = null;
+	private final Set<Contact> contacts = new HashSet<Contact>();
 	
 	/**
 	 * Constructs a MeetingImpl with the given set of contacts and date.
@@ -30,7 +30,7 @@ import java.util.HashSet;
 	 * @return the ID of the meeting
 	 **/
 	@Override
-	public int getId() {
+	public int getID() {
 		return id;
 	}
 	
@@ -56,5 +56,23 @@ import java.util.HashSet;
 	@Override
 	public Set<Contact> getContacts() {
 		return contacts;
+	}
+	
+	@Override // see http://www.artima.com/lejava/articles/equality.html
+	public boolean equals(Object other) {
+		boolean result = false;
+		if(other instanceof MeetingImpl) {
+			MeetingImpl that = (MeetingImpl) other;
+			result = (this.getID() == that.getID() && this.getName() == that.getName() && this.getNotes() == that.getNotes());
+		}
+		return result;
+	}
+	
+	@Override // see link above
+	public int hashCode() {
+		int result = 13 + id;
+		result = 31 * result + name.hashCode();
+		result = 41 * result + notes.hashCode();
+		return result;
 	}
  }

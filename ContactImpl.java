@@ -5,11 +5,9 @@
  * not), and notes that the user may want to save about them.
  **/
  public class ContactImpl implements Contact {
-	private int id;
-	private String name, notes;
-	// nextAvailableId is used to assign IDs to new contacts, is static as it is only needed
-	// by the class, not objects. 
-	private static int nextAvailableId = 0; 
+	private final int id;
+	private final String name; 
+	private String notes = ""; 
 	
 	/**
 	 * Constructs a ContactImpl with the given name and notes about the contact.
@@ -17,10 +15,10 @@
 	 * @param name the name of the contact
 	 * @param notes notes to be added about this contact
 	 **/
-	public ContactImpl(String name, String notes) {
+	public ContactImpl(int id, String name, String notes) {
 		this.name = name;
-		this.notes = notes;
-		this.id = nextAvailableId++; // assigns nextAvailableId to this.id, then increments nextAvailableId.
+		this.notes += notes;
+		this.id = id;
 	}
 	
 	/**
@@ -63,6 +61,24 @@
 	 **/
 	@Override
 	public void addNotes(String note) {
-		this.notes = note;
+		this.notes += note; // add to notes, not overwrite
+	}
+	
+	@Override // see http://www.artima.com/lejava/articles/equality.html
+	public boolean equals(Object other) {
+		boolean result = false;
+		if(other instanceof ContactImpl) {
+			ContactImpl that = (ContactImpl) other;
+			result = (this.getID() == that.getID() && this.getName() == that.getName() && this.getNotes() == that.getNotes());
+		}
+		return result;
+	}
+	
+	@Override // see link above
+	public int hashCode() {
+		int result = 13 + id;
+		result = 31 * result + name.hashCode();
+		result = 41 * result + notes.hashCode();
+		return result;
 	}
  }
