@@ -1,11 +1,14 @@
-import java.util.Calendar;
-import java.util.List;
-import java.util.Set;
+import java.util.*
 
 /**
  * A class to manage your contacts and meetings.
  **/
-public interface ContactManager {
+public class ContactManagerImpl implements ContactManager {
+	private int next_contact_id = 0;
+	private int next_meeting_id = 0;
+	private Map<Integer, Contact> known_contacts = new HashMap<Integer, Contact>();
+	private Map<Integer, Meeting> meetings = new HashMap<Integer, Meeting>();
+	
 	/**
 	 * Add a new meeting to be held in the future.
 	 * 
