@@ -1,4 +1,6 @@
-import java.util.*
+import java.util.*;
+import util.CalendarHandler;
+//import java.lang.Exception;
 
 /**
  * A class to manage your contacts and meetings.
@@ -9,6 +11,10 @@ public class ContactManagerImpl implements ContactManager {
 	private Map<Integer, Contact> known_contacts = new HashMap<Integer, Contact>();
 	private Map<Integer, Meeting> meetings = new HashMap<Integer, Meeting>();
 	
+	public ContactManagerImpl(/*params?*/) {
+		// This is where we recover previous session info from file
+	}
+	
 	/**
 	 * Add a new meeting to be held in the future.
 	 * 
@@ -18,7 +24,18 @@ public class ContactManagerImpl implements ContactManager {
 	 * @throws IllegalArgumentException if the meeting is set for a time in the past, 
 	 *		or if any contact is unknown / non-existent
 	 **/
-	int addFutureMeeting(Set<Contact> contacts, Calendar date);
+	public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
+		// Check that the given date is in the future
+		if(!CalendarHandler.isInFuture(date)) {
+			throw new IllegalArgumentException
+		}
+		////////// throw new etc. etc.
+		// Second, check that each contact is known
+		////////// throw
+		// Third, if we've got this far, add the meeting
+		int id = next_meeting_id++;
+		meetings.put(id, new MeetingImpl(id, contacts, date));		
+	}
 	
 	/**
 	 * Returns the PAST meeting with the requested ID, or null if there is none.
@@ -27,7 +44,17 @@ public class ContactManagerImpl implements ContactManager {
 	 * @return the meeting with the requested ID, or null if there is none
 	 * @throws IllegalArgumentException if there is a meeting with that ID happening in the future
 	 **/
-	PastMeeting getPastMeeting(int id);
+	public PastMeeting getPastMeeting(int id) {
+		// get() the meeting with this id (if no mapping for id, returns null, which is what we want)
+		Meeting requestedMeeting = meetings.get(id);
+		// check date is in past if not null
+		if(requestedMeeting == null) {
+			return requestedMeeting;
+		}
+		// if dateIsInPast
+		//// return requestedMeeting
+		// else throw illegal argument ex
+	}
 	
 	/**
 	 * Returns the FUTURE meeting with the requested ID, or null if there is none.
