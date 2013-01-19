@@ -1,6 +1,6 @@
 import java.util.*;
 import util.CalendarHandler;
-//import java.lang.Exception;
+import java.lang.Exception;
 
 /**
  * A class to manage your contacts and meetings.
@@ -16,6 +16,21 @@ public class ContactManagerImpl implements ContactManager {
 	}
 	
 	/**
+	 * Checks that each of the given contacts is in the set of known contacts.
+	 *
+	 * @param contacts the set of contacts to check
+	 * @return whether all the given contacts are known
+	 **/
+	private boolean contactsAreKnown(Set<Contact> contacts) {
+		for(Contact next : contacts) {
+			if( !known_contacts.containsKey(next.getID()) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
 	 * Add a new meeting to be held in the future.
 	 * 
 	 * @param contacts a list of contacts that will participate in the meeting
@@ -27,12 +42,15 @@ public class ContactManagerImpl implements ContactManager {
 	public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
 		// Check that the given date is in the future
 		if(!CalendarHandler.isInFuture(date)) {
-			throw new IllegalArgumentException
+			throw new IllegalArgumentException("Given date, " + CalendarHandler.format(date) + ", is not in the future");
 		}
-		////////// throw new etc. etc.
-		// Second, check that each contact is known
-		////////// throw
-		// Third, if we've got this far, add the meeting
+		
+		// Check that each contact is known
+		if(!contactsAreKnown(contacts)) {
+			throw new IllegalArgumentException("Given set of contacts contains an unknown contact");
+		}
+		
+		// If we've got this far, add the meeting
 		int id = next_meeting_id++;
 		meetings.put(id, new MeetingImpl(id, contacts, date));		
 	}
