@@ -7,12 +7,8 @@ import java.util.HashSet;
  *
  * It includes your notes about what happened and what was agreed.
  **/
- public class PastMeetingImpl implements PastMeeting {
-	private int id;
-	private Calendar date = null;
-	private Set<Contact> contacts = new HashSet<Contact>();
-	// the above is lifted directly from MeetingImpl (as PastMeeting extends Meeting, the
-	// implementation of PastMeeting must implement the methods inherited from Meeting),
+ public class PastMeetingImpl extends MeetingImpl implements PastMeeting {
+	// inherited functionality from MeetingImpl, 
 	// the new code here is just for adding text notes.
 	private String notes = "";
 	
@@ -25,10 +21,8 @@ import java.util.HashSet;
 	 * @param notes the notes to be added 
 	 **/
 	public PastMeetingImpl(int id, Set<Contact> contacts, Calendar date, String notes) {
-		this.contacts = contacts;
-		this.date = date;
-		this.notes = notes;
-		this.id = id; 
+		super(id, contacts, date);
+		this.notes += notes;
 	}
 	
 	/**
@@ -39,10 +33,8 @@ import java.util.HashSet;
 	 * @param notes the notes to be added 
 	 **/
 	public PastMeetingImpl(Meeting meeting, String notes) {
-		this.contacts = meeting.getContacts();
-		this.date = meeting.getDate();
-		this.notes = notes;
-		this.id = meeting.getId();
+		super(meeting.getId(), meeting.getContacts(), meeting.getDate());
+		this.notes += notes;
 	}
 	
 	/**
@@ -55,39 +47,5 @@ import java.util.HashSet;
 	@Override
 	public String getNotes() {
 		return notes;
-	}
-	
-	/**
-	 * Returns the ID of the meeting.
-	 *
-	 * @return the ID of the meeting
-	 **/
-	@Override
-	public int getId() {
-		return id;
-	}
-	
-	/**
-	 * Returns the date of the meeting.
-	 *
-	 * @return the date of the meeting
-	 **/
-	@Override
-	public Calendar getDate() {
-		return date;
-	}
-	
-	/**
-	 * Returns the details of people that attended the meeting.
-	 *
-	 * The list contains a minimum of one contact (if there were
-	 * just two people: the user and the contact) and may contain an 
-	 * arbitrary number of them.
-	 *
-	 * @return the details of people that attended the meeting
-	 **/
-	@Override
-	public Set<Contact> getContacts() {
-		return contacts;
 	}
  }
