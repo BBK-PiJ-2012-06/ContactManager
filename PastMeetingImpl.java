@@ -33,7 +33,7 @@ import java.util.HashSet;
 	 * @param notes the notes to be added 
 	 **/
 	public PastMeetingImpl(Meeting meeting, String notes) {
-		super(meeting.getId(), meeting.getContacts(), meeting.getDate());
+		super(meeting.getID(), meeting.getContacts(), meeting.getDate());
 		this.notes += notes;
 	}
 	
@@ -47,5 +47,22 @@ import java.util.HashSet;
 	@Override
 	public String getNotes() {
 		return notes;
+	}
+	
+	@Override // see http://www.artima.com/lejava/articles/equality.html
+	public boolean equals(Object other) {
+		boolean result = false;
+		if(other instanceof PastMeetingImpl) {
+			PastMeetingImpl that = (PastMeetingImpl) other;
+			result = (this.getID() == that.getID() && this.getContacts().equals(that.getContacts()) && this.getDate().equals(that.getDate()) && this.getNotes().equals(that.getNotes()));
+		}
+		return result;
+	}
+	
+	@Override // see link above
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 11 * result + notes.hashCode();
+		return result;
 	}
  }
