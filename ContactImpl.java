@@ -73,7 +73,11 @@
 	 **/
 	@Override
 	public void addNotes(String note) {
-		this.notes += '\n' + note; // add to notes, not overwrite
+		if(notes.isEmpty()) {
+			notes += note;
+		} else {
+			this.notes += '\n' + note; 
+		}
 	}
 	
 	@Override // see http://www.artima.com/lejava/articles/equality.html
