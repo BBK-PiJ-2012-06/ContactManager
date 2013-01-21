@@ -9,8 +9,8 @@ import java.util.HashSet;
  **/
  public class MeetingImpl implements Meeting {
 	private final int id;
-	private final Calendar date = null;
-	private final Set<Contact> contacts = new HashSet<Contact>();
+	private final Calendar date;
+	private final Set<Contact> contacts;
 	
 	/**
 	 * Constructs a MeetingImpl with the given set of contacts and date.
@@ -19,7 +19,7 @@ import java.util.HashSet;
 	 * @param date the date on which the meeting is to take place
 	 **/
 	public MeetingImpl(int id, Set<Contact> contacts, Calendar date) {
-		this.contacts = contacts;
+		this.contacts = new HashSet<Contact>(contacts);
 		this.date = date;
 		this.id = id; 
 	}
@@ -63,7 +63,7 @@ import java.util.HashSet;
 		boolean result = false;
 		if(other instanceof MeetingImpl) {
 			MeetingImpl that = (MeetingImpl) other;
-			result = (this.getID() == that.getID() && this.getName() == that.getName() && this.getNotes() == that.getNotes());
+			result = (this.getID() == that.getID() && this.getContacts().equals(that.getContacts()) && this.getDate().equals(that.getDate()));
 		}
 		return result;
 	}
@@ -71,8 +71,8 @@ import java.util.HashSet;
 	@Override // see link above
 	public int hashCode() {
 		int result = 13 + id;
-		result = 31 * result + name.hashCode();
-		result = 41 * result + notes.hashCode();
+		result = 31 * result + contacts.hashCode();
+		result = 41 * result + date.hashCode();
 		return result;
 	}
  }
