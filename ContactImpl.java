@@ -10,7 +10,7 @@
 	private String notes = ""; 
 	
 	/**
-	 * Constructs a ContactImpl with the given name and notes about the contact.
+	 * Constructs a ContactImpl with the given ID, name and notes about the contact.
 	 *
 	 * @param name the name of the contact
 	 * @param notes notes to be added about this contact
@@ -18,6 +18,18 @@
 	public ContactImpl(int id, String name, String notes) {
 		this.name = name;
 		this.notes += notes;
+		this.id = id;
+	}
+	
+	/**
+	 * Constructs a ContactImpl with the given ID and name (for use when notes will be added
+	 * at a later date).
+	 *
+	 * @param name the name of the contact
+	 * @param notes notes to be added about this contact
+	 **/
+	public ContactImpl(int id, String name) {
+		this.name = name;
 		this.id = id;
 	}
 	
@@ -61,7 +73,7 @@
 	 **/
 	@Override
 	public void addNotes(String note) {
-		this.notes += note; // add to notes, not overwrite
+		this.notes += '\n' + note; // add to notes, not overwrite
 	}
 	
 	@Override // see http://www.artima.com/lejava/articles/equality.html
@@ -69,7 +81,7 @@
 		boolean result = false;
 		if(other instanceof ContactImpl) {
 			ContactImpl that = (ContactImpl) other;
-			result = (this.getID() == that.getID() && this.getName() == that.getName() && this.getNotes() == that.getNotes());
+			result = (this.getID() == that.getID() && this.getName().equals(that.getName()) && this.getNotes().equals(that.getNotes()));
 		}
 		return result;
 	}
