@@ -54,7 +54,10 @@ import java.util.HashSet;
 		boolean result = false;
 		if(other instanceof PastMeetingImpl) {
 			PastMeetingImpl that = (PastMeetingImpl) other;
-			result = (this.getID() == that.getID() && this.getContacts().equals(that.getContacts()) && this.getDate().equals(that.getDate()) && this.getNotes().equals(that.getNotes()));
+			result = (this.getID() == that.getID());
+			result = result && (this.getContacts().equals(that.getContacts()));
+			result = result && (this.getDate().equals(that.getDate()));
+			result = result && (this.getNotes().equals(that.getNotes()));
 		}
 		return result;
 	}
