@@ -85,7 +85,9 @@
 		boolean result = false;
 		if(other instanceof ContactImpl) {
 			ContactImpl that = (ContactImpl) other;
-			result = (this.getID() == that.getID() && this.getName().equals(that.getName()) && this.getNotes().equals(that.getNotes()));
+			result = (this.getID() == that.getID());
+			result = result && (this.getName().equals(that.getName()));
+			result = result && (this.getNotes().equals(that.getNotes()));
 		}
 		return result;
 	}
