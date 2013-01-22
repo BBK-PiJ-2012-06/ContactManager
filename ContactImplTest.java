@@ -52,10 +52,10 @@ public class ContactImplTest {
 		//	-- must return the same integer while running, as long as no mutable field involved in equals() changes
 		//	-- if two objects are equal under equals(), they must return the same hashCode()
 		//	-- two unequal objects under equals() are not required to return different hashes, but it is preferable.
-		assertTrue(c1.hashCode() == h1);
-		assertTrue(h1 != h2);
-		assertTrue(h2 == h2_too);
+		assertEquals(c1.hashCode(), h1);
+		assertFalse(h1 == h2);
+		assertEquals(h2, h2_too);
 		c1.addNotes("this should change c1's hash");
-		assertTrue(c1.hashCode() != h1);
+		assertFalse(h1 == c1.hashCode());
 	}
 }

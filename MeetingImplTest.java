@@ -55,9 +55,9 @@ public class MeetingImplTest {
 		//	-- must return the same integer while running, as long as no mutable field involved in equals() changes
 		//	-- if two objects are equal under equals(), they must return the same hashCode()
 		//	-- two unequal objects under equals() are not required to return different hashes, but it is preferable.
-		assertTrue(m.hashCode() == h);
-		assertTrue(h != not_h);
-		assertTrue(h == h_too);
+		assertEquals(h, m.hashCode());
+		assertFalse(h == not_h);
+		assertEquals(h, h_too);
 		// NB as all MeetingImpl's fields are final/immutable the situation where the hash changes as a result
 		// of a change to its fields should never occur.
 	}
