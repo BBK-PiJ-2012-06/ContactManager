@@ -63,7 +63,9 @@ import java.util.HashSet;
 		boolean result = false;
 		if(other instanceof MeetingImpl) {
 			MeetingImpl that = (MeetingImpl) other;
-			result = (this.getID() == that.getID() && this.getContacts().equals(that.getContacts()) && this.getDate().equals(that.getDate()));
+			result = (this.getID() == that.getID());
+			result = result && (this.getContacts().equals(that.getContacts()));
+			result = result && (this.getDate().equals(that.getDate()));
 		}
 		return result;
 	}
