@@ -15,10 +15,8 @@ public interface DataUtilities {
 	/**
 	 * Adds the given contacts to the stored data.
 	 * 
-	 * @param contacts
-	 *            the set of contacts to add
-	 * @throws NullPointerException
-	 *             if contacts is null
+	 * @param contacts the set of contacts to add
+	 * @throws NullPointerException if contacts is null
 	 **/
 	void addContacts(Set<Contact> contacts);
 
@@ -32,10 +30,8 @@ public interface DataUtilities {
 	/**
 	 * Adds the given past meetings to the stored data.
 	 * 
-	 * @param meetings
-	 *            the list of past meetings to add
-	 * @throws NullPointerException
-	 *             if meetings is null
+	 * @param meetings the list of past meetings to add
+	 * @throws NullPointerException if meetings is null
 	 **/
 	void addPastMeetings(List<PastMeeting> meetings);
 
@@ -50,10 +46,8 @@ public interface DataUtilities {
 	/**
 	 * Adds the given future meetings to the stored data.
 	 * 
-	 * @param meetings
-	 *            the list of past meetings to add
-	 * @throws NullPointerException
-	 *             if meetings is null
+	 * @param meetings the list of past meetings to add
+	 * @throws NullPointerException if meetings is null
 	 **/
 	void addFutureMeetings(List<FutureMeeting> meetings);
 
@@ -68,22 +62,20 @@ public interface DataUtilities {
 	/**
 	 * Loads the data stored in the file at the given path.
 	 * 
-	 * @param filename
-	 *            the path to the file to load
-	 * @throws IOException
-	 *             if the file cannot be read
+	 * @param filename the path to the file to load
+	 * @throws IllegalArgumentException if the file does not exist
+	 * @throws IOException if the file cannot be read
 	 **/
-	void loadFile(String filename);
+	void loadFile(String filename) throws IOException;
 
 	/**
 	 * Writes the data stored in memory to the file at the given path.
 	 * 
 	 * If the given file already exists, it will be overwritten.
 	 * 
-	 * @param filename
-	 *            the path to the file to write to
-	 * @throws IOException
-	 *             if the file cannot be written
+	 * @param filename the path to the file to write to
+	 * @throws IllegalArgumentException if the file does not exist
+	 * @throws IOException if the file cannot be written
 	 **/
-	void writeFile(String filename);
+	void writeFile(String filename) throws IOException;
 }
