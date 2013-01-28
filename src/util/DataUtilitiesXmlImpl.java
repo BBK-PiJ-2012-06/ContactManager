@@ -1,5 +1,7 @@
 package util;
 
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.List;
 import java.io.IOException;
@@ -15,6 +17,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import main.Contact;
+import main.ContactImpl;
 import main.FutureMeeting;
 import main.PastMeeting;
 
@@ -22,34 +25,31 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/*
- import java.io.*;
-
- import org.w3c.dom.*;
-
- import javax.xml.parsers.*;
-
- import javax.xml.transform.*;
- import javax.xml.transform.dom.*;
- import javax.xml.transform.stream.*;
- */
 
 /**
- * An implementation of the DataHandler interface.
+ * An implementation of the DataUtilities interface.
  * 
  * ***********************************************
  **/
 public class DataUtilitiesXmlImpl implements DataUtilities {
+	private Set<Contact> knownContacts;
+	private List<FutureMeeting> futureMeetings;
+	private List<PastMeeting> pastMeetings;
+	
 	/**
 	 * Adds the given contacts to the stored data.
 	 * 
-	 * @param contacts
-	 *            the set of contacts to add
-	 * @throws NullPointerException
-	 *             if contacts is null
+	 * @param contacts the set of contacts to add
+	 * @throws NullPointerException if contacts is null
 	 **/
 	@Override
-	public void addContacts(Set<Contact> contacts);
+	public void addContacts(Set<Contact> contacts) {
+		System.out.println("addContacts not yet implemented");
+		
+		if(contacts == null) {
+			throw new NullPointerException("contacts is null");
+		}
+	}
 
 	/**
 	 * Retrieves the contacts from the stored data, or null if there are none.
@@ -57,18 +57,26 @@ public class DataUtilitiesXmlImpl implements DataUtilities {
 	 * @return the set of stored contacts
 	 **/
 	@Override
-	public Set<Contact> getContacts();
+	public Set<Contact> getContacts() {
+		System.out.println("getContacts not yet implemented -- returning null set");
+		
+		return knownContacts;
+	}
 
 	/**
 	 * Adds the given past meetings to the stored data.
 	 * 
-	 * @param meetings
-	 *            the list of past meetings to add
-	 * @throws NullPointerException
-	 *             if meetings is null
+	 * @param meetings the list of past meetings to add
+	 * @throws NullPointerException if meetings is null
 	 **/
 	@Override
-	public void addPastMeetings(List<PastMeeting> meetings);
+	public void addPastMeetings(List<PastMeeting> meetings) {
+		System.out.println("addPastMeetings not yet implemented");
+		
+		if(meetings == null) {
+			throw new NullPointerException("meetings is null");
+		}
+	}
 
 	/**
 	 * Retrieves the past meetings from the stored data, or null if there are
@@ -77,18 +85,26 @@ public class DataUtilitiesXmlImpl implements DataUtilities {
 	 * @return the list of stored past meetings
 	 **/
 	@Override
-	public List<PastMeeting> getPastMeetings();
+	public List<PastMeeting> getPastMeetings() {
+		System.out.println("getPastMeetings not yet implemented -- returning null list");
+		
+		return pastMeetings;
+	}
 
 	/**
 	 * Adds the given future meetings to the stored data.
 	 * 
-	 * @param meetings
-	 *            the list of past meetings to add
-	 * @throws NullPointerException
-	 *             if meetings is null
+	 * @param meetings the list of past meetings to add
+	 * @throws NullPointerException if meetings is null
 	 **/
 	@Override
-	public void addFutureMeetings(List<FutureMeeting> meetings);
+	public void addFutureMeetings(List<FutureMeeting> meetings) {
+		System.out.println("addFutureMeetings not yet implemented");
+		
+		if(meetings == null) {
+			throw new NullPointerException("meetings is null");
+		}
+	}
 
 	/**
 	 * Retrieves the future meetings from the stored data, or null if there are
@@ -97,18 +113,27 @@ public class DataUtilitiesXmlImpl implements DataUtilities {
 	 * @return the list of stored future meetings
 	 **/
 	@Override
-	public List<FutureMeeting> getFutureMeetings();
+	public List<FutureMeeting> getFutureMeetings() {
+		System.out.println("getFutureMeetings not yet implemented -- returning null list");
+		
+		return futureMeetings;
+	}
 
 	/**
 	 * Loads the data stored in the file at the given path.
 	 * 
-	 * @param filename
-	 *            the path to the file to load
-	 * @throws IOException
-	 *             if the file cannot be read
+	 * @param filename the path to the file to load
+	 * @throws IllegalArgumentException if the file does not exist
+	 * @throws IOException if the file cannot be read
 	 **/
 	@Override
-	public void loadFile(String filename) {
+	public void loadFile(String filename) throws IOException {
+		System.out.println("loadFile not yet implemented");
+		
+		File file = new File(filename);
+		if(!file.exists()) {
+			throw new IllegalArgumentException("file " + filename + " does not exist");
+		}
 		/*
 		 * EXAMPLE -- from http://tutorials.jenkov.com/java-xml/dom.html *
 		 * DocumentBuilderFactory builderFactory =
@@ -135,13 +160,13 @@ public class DataUtilitiesXmlImpl implements DataUtilities {
 	 * 
 	 * If the given file already exists, it will be overwritten.
 	 * 
-	 * @param filename
-	 *            the path to the file to write to
-	 * @throws IOException
-	 *             if the file cannot be written
+	 * @param filename the path to the file to write to
+	 * @throws IOException if the file cannot be written
 	 **/
 	@Override
 	public void writeFile(String filename) {
+		System.out.println("writeFile not yet implemented");
+				
 		/*
 		 * EXAMPLE 1 -- see
 		 * http://www.mkyong.com/java/how-to-create-xml-file-in-java-dom/ * try
