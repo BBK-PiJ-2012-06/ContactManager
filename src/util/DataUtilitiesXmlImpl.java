@@ -1,4 +1,4 @@
-package main;
+package util;
 
 import java.util.Set;
 import java.util.List;
@@ -13,6 +13,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
+import main.Contact;
+import main.FutureMeeting;
+import main.PastMeeting;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -35,7 +39,7 @@ import org.w3c.dom.Element;
  * 
  * ***********************************************
  **/
-public class DataHandlerXmlImpl implements DataHandler {
+public class DataUtilitiesXmlImpl implements DataUtilities {
 	/**
 	 * Adds the given contacts to the stored data.
 	 * 

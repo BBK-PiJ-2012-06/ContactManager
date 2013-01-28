@@ -1,13 +1,17 @@
-package main;
+package util;
 
 import java.util.Set;
 import java.util.List;
 import java.io.IOException;
 
+import main.Contact;
+import main.FutureMeeting;
+import main.PastMeeting;
+
 /**
  * A class to handle the file interactions needed by ContactManager.
  **/
-public interface DataHandler {
+public interface DataUtilities {
 	/**
 	 * Adds the given contacts to the stored data.
 	 * 
