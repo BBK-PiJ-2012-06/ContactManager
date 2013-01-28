@@ -74,7 +74,6 @@ public interface DataUtilities {
 	 * If the given file already exists, it will be overwritten.
 	 * 
 	 * @param filename the path to the file to write to
-	 * @throws IllegalArgumentException if the file does not exist
 	 * @throws IOException if the file cannot be written
 	 **/
 	void writeFile(String filename) throws IOException;
