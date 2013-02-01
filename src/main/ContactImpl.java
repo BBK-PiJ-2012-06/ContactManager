@@ -15,10 +15,8 @@ public class ContactImpl implements Contact {
 	 * Constructs a ContactImpl with the given ID, name and notes about the
 	 * contact.
 	 * 
-	 * @param name
-	 *            the name of the contact
-	 * @param notes
-	 *            notes to be added about this contact
+	 * @param name the name of the contact
+	 * @param notes notes to be added about this contact
 	 **/
 	public ContactImpl(int id, String name, String notes) {
 		this.name = name;
@@ -30,10 +28,7 @@ public class ContactImpl implements Contact {
 	 * Constructs a ContactImpl with the given ID and name (for use when notes
 	 * will be added at a later date).
 	 * 
-	 * @param name
-	 *            the name of the contact
-	 * @param notes
-	 *            notes to be added about this contact
+	 * @param name the name of the contact
 	 **/
 	public ContactImpl(int id, String name) {
 		this.name = name;
@@ -76,8 +71,7 @@ public class ContactImpl implements Contact {
 	/**
 	 * Add notes about the contact.
 	 * 
-	 * @param note
-	 *            the notes to be added
+	 * @param note the notes to be added
 	 **/
 	@Override
 	public void addNotes(String note) {
