@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
  * 
  * ***********************************************
  **/
-public class DataUtilitiesXmlImpl implements DataUtilities {
+public class DataUtilXmlImpl implements DataUtil {
 	private Set<Contact> knownContacts;
 	private List<FutureMeeting> futureMeetings;
 	private List<PastMeeting> pastMeetings;

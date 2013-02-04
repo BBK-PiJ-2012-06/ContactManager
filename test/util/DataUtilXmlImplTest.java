@@ -17,8 +17,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DataUtilitiesXmlImplTest {
-	private DataUtilities data;
+public class DataUtilXmlImplTest {
+	private DataUtil data;
 	private String filename;
 	private Set<Contact> contacts;
 	private List<PastMeeting> pastmeetings;
@@ -30,7 +30,7 @@ public class DataUtilitiesXmlImplTest {
 	
 	@Before
 	public void buildUp() {
-		data = new DataUtilitiesXmlImpl();
+		data = new DataUtilXmlImpl();
 		filename = "." + File.separator + "test_file.txt";
 		
 		alice = new ContactImpl(1, "Alice");

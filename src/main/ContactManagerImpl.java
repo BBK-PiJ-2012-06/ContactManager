@@ -3,7 +3,7 @@ package main;
 import java.util.*;
 import java.lang.Exception;
 
-import util.CalendarUtilities;
+import util.CalendarUtil;
 
 /**
  * A class to manage your contacts and meetings.
@@ -49,9 +49,9 @@ public class ContactManagerImpl implements ContactManager {
 	@Override
 	public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
 		// Check that the given date is in the future
-		if (!CalendarUtilities.isInFuture(date)) {
+		if (!CalendarUtil.isInFuture(date)) {
 			throw new IllegalArgumentException("Given date, "
-					+ CalendarUtilities.format(date) + ", is not in the future");
+					+ CalendarUtil.format(date) + ", is not in the future");
 		}
 
 		// Check that each contact is known
@@ -85,12 +85,12 @@ public class ContactManagerImpl implements ContactManager {
 			return (PastMeeting) requestedMeeting;
 		}
 
-		if (CalendarUtilities.isInPast(requestedMeeting.getDate())) {
+		if (CalendarUtil.isInPast(requestedMeeting.getDate())) {
 			return (PastMeeting) requestedMeeting;
 		} else {
 			throw new IllegalArgumentException(
 					"Requested meeting is on a future date: "
-							+ CalendarUtilities.format(requestedMeeting.getDate()));
+							+ CalendarUtil.format(requestedMeeting.getDate()));
 		}
 	}
 

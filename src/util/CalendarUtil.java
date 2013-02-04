@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 /**
  * A class to handle some common Calendar checking/manipulating methods.
  **/
-public class CalendarUtilities {
+public class CalendarUtil {
 
 	/**
 	 * Checks whether the given date is in the past.
