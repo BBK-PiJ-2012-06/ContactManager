@@ -101,7 +101,7 @@ public class DataUtilXmlImplTest {
 	@Test
 	public void testsAddAndGetFutureMeetings() {
 		data.addFutureMeetings(futuremeetings);
-		List<FutureMeeting> returned = data.getFutureMeetings()();
+		List<FutureMeeting> returned = data.getFutureMeetings();
 		
 		assertTrue(returned.containsAll(futuremeetings));
 	}
