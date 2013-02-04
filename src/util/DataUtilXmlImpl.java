@@ -43,12 +43,12 @@ public class DataUtilXmlImpl implements DataUtil {
 	 * @throws NullPointerException if contacts is null
 	 **/
 	@Override
-	public void addContacts(Set<Contact> contacts) {
-		System.out.println("addContacts not yet implemented");
-		
+	public void addContacts(Set<Contact> contacts) {		
 		if(contacts == null) {
 			throw new NullPointerException("contacts is null");
 		}
+		
+		knownContacts.addAll(contacts);
 	}
 
 	/**
@@ -57,9 +57,7 @@ public class DataUtilXmlImpl implements DataUtil {
 	 * @return the set of stored contacts
 	 **/
 	@Override
-	public Set<Contact> getContacts() {
-		System.out.println("getContacts not yet implemented -- returning null set");
-		
+	public Set<Contact> getContacts() {		
 		return knownContacts;
 	}
 
