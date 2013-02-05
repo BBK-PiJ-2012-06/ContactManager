@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.List;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import java.io.File;
@@ -16,32 +17,29 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 import main.Contact;
 import main.ContactImpl;
 import main.FutureMeeting;
 import main.PastMeeting;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-
 /**
- * An implementation of the DataUtilities interface.
+ * An implementation of the DataUtil interface.
  * 
  * ***********************************************
  **/
 public class DataUtilXmlImpl implements DataUtil {
-	private Set<Contact> knownContacts;
-	private List<FutureMeeting> futureMeetings;
-	private List<PastMeeting> pastMeetings;
+	private Set<Contact> knownContacts = new HashSet<Contact>();
+	private List<FutureMeeting> futureMeetings = new LinkedList<FutureMeeting>();
+	private List<PastMeeting> pastMeetings = new LinkedList<PastMeeting>();
+	private Document doc; // The DOM object that will model the data stored in the XML file.
 	
-	/**
-	 * Adds the given contacts to the stored data.
-	 * 
-	 * @param contacts the set of contacts to add
-	 * @throws NullPointerException if contacts is null
-	 **/
 	@Override
 	public void addContacts(Set<Contact> contacts) {		
 		if(contacts == null) {
@@ -51,69 +49,37 @@ public class DataUtilXmlImpl implements DataUtil {
 		knownContacts.addAll(contacts);
 	}
 
-	/**
-	 * Retrieves the contacts from the stored data, or null if there are none.
-	 * 
-	 * @return the set of stored contacts
-	 **/
+
 	@Override
 	public Set<Contact> getContacts() {		
 		return knownContacts;
 	}
 
-	/**
-	 * Adds the given past meetings to the stored data.
-	 * 
-	 * @param meetings the list of past meetings to add
-	 * @throws NullPointerException if meetings is null
-	 **/
 	@Override
-	public void addPastMeetings(List<PastMeeting> meetings) {
-		System.out.println("addPastMeetings not yet implemented");
-		
+	public void addPastMeetings(List<PastMeeting> meetings) {		
 		if(meetings == null) {
 			throw new NullPointerException("meetings is null");
 		}
+		
+		pastMeetings.addAll(meetings);
 	}
 
-	/**
-	 * Retrieves the past meetings from the stored data, or null if there are
-	 * none.
-	 * 
-	 * @return the list of stored past meetings
-	 **/
 	@Override
-	public List<PastMeeting> getPastMeetings() {
-		System.out.println("getPastMeetings not yet implemented -- returning null list");
-		
+	public List<PastMeeting> getPastMeetings() {		
 		return pastMeetings;
 	}
 
-	/**
-	 * Adds the given future meetings to the stored data.
-	 * 
-	 * @param meetings the list of past meetings to add
-	 * @throws NullPointerException if meetings is null
-	 **/
 	@Override
-	public void addFutureMeetings(List<FutureMeeting> meetings) {
-		System.out.println("addFutureMeetings not yet implemented");
-		
+	public void addFutureMeetings(List<FutureMeeting> meetings) {		
 		if(meetings == null) {
 			throw new NullPointerException("meetings is null");
 		}
+		
+		futureMeetings.addAll(meetings);
 	}
 
-	/**
-	 * Retrieves the future meetings from the stored data, or null if there are
-	 * none.
-	 * 
-	 * @return the list of stored future meetings
-	 **/
 	@Override
-	public List<FutureMeeting> getFutureMeetings() {
-		System.out.println("getFutureMeetings not yet implemented -- returning null list");
-		
+	public List<FutureMeeting> getFutureMeetings() {		
 		return futureMeetings;
 	}
 
@@ -123,34 +89,22 @@ public class DataUtilXmlImpl implements DataUtil {
 	 * @param filename the path to the file to load
 	 * @throws IllegalArgumentException if the file does not exist
 	 * @throws IOException if the file cannot be read
+	 * @throws ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested 
+	 * @throws SAXException if the XML file is malformed 
 	 **/
 	@Override
-	public void loadFile(String filename) throws IOException {
+	public void loadFile(String filename) throws IOException, ParserConfigurationException, SAXException {
 		System.out.println("loadFile not yet implemented");
 		
 		File file = new File(filename);
 		if(!file.exists()) {
 			throw new IllegalArgumentException("file " + filename + " does not exist");
 		}
-		/*
-		 * EXAMPLE -- from http://tutorials.jenkov.com/java-xml/dom.html *
-		 * DocumentBuilderFactory builderFactory =
-		 * DocumentBuilderFactory.newInstance(); DocumentBuilder builder = null;
-		 * try { builder = builderFactory.newDocumentBuilder(); } catch
-		 * (ParserConfigurationException e) { e.printStackTrace(); }
-		 * 
-		 * try { Document document = builder.parse(new
-		 * FileInputStream("data\\text.xml")); } catch (SAXException e) {
-		 * e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); }
-		 * 
-		 * NodeList nodes = element.getChildNodes();
-		 * 
-		 * for(int i=0; i<nodes.getLength(); i++){ Node node = nodes.item(i);
-		 * 
-		 * if(node instanceof Element){ //a child element to process Element
-		 * child = (Element) node; String attribute =
-		 * child.getAttribute("width"); } }
-		 */
+		// Using tutorial from http://docs.oracle.com/javase/tutorial/jaxp/dom/readingXML.html
+	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder builder = factory.newDocumentBuilder(); 
+	    doc = builder.parse(new File(filename));
+	    // ...
 	}
 
 	/**
@@ -166,108 +120,51 @@ public class DataUtilXmlImpl implements DataUtil {
 		System.out.println("writeFile not yet implemented");
 				
 		/*
-		 * EXAMPLE 1 -- see
-		 * http://www.mkyong.com/java/how-to-create-xml-file-in-java-dom/ * try
-		 * {
-		 * 
-		 * DocumentBuilderFactory docFactory =
-		 * DocumentBuilderFactory.newInstance(); DocumentBuilder docBuilder =
-		 * docFactory.newDocumentBuilder();
-		 * 
-		 * // Root element Document doc = docBuilder.newDocument(); Element
-		 * rootElement = doc.createElement("data");
-		 * doc.appendChild(rootElement);
-		 * 
-		 * // Contact elements Element contacts = doc.createElement("contacts");
-		 * rootElement.appendChild(contacts);
-		 * 
-		 * // set attribute to staff element Attr attr =
-		 * doc.createAttribute("id"); attr.setValue("1");
-		 * staff.setAttributeNode(attr);
-		 * 
-		 * // shorten way // staff.setAttribute("id", "1");
-		 * 
-		 * // firstname elements Element firstname =
-		 * doc.createElement("firstname");
-		 * firstname.appendChild(doc.createTextNode("yong"));
-		 * staff.appendChild(firstname);
-		 * 
-		 * // lastname elements Element lastname =
-		 * doc.createElement("lastname");
-		 * lastname.appendChild(doc.createTextNode("mook kim"));
-		 * staff.appendChild(lastname);
-		 * 
-		 * // nickname elements Element nickname =
-		 * doc.createElement("nickname");
-		 * nickname.appendChild(doc.createTextNode("mkyong"));
-		 * staff.appendChild(nickname);
-		 * 
-		 * // salary elements Element salary = doc.createElement("salary");
-		 * salary.appendChild(doc.createTextNode("100000"));
-		 * staff.appendChild(salary);
-		 * 
-		 * // write the content into xml file TransformerFactory
-		 * transformerFactory = TransformerFactory.newInstance(); Transformer
-		 * transformer = transformerFactory.newTransformer(); DOMSource source =
-		 * new DOMSource(doc); StreamResult result = new StreamResult(new
-		 * File("C:\\file.xml"));
-		 * 
-		 * // Output to console for testing // StreamResult result = new
-		 * StreamResult(System.out);
-		 * 
-		 * transformer.transform(source, result);
-		 * 
-		 * System.out.println("File saved!");
-		 * 
-		 * } catch (ParserConfigurationException pce) { pce.printStackTrace(); }
-		 * catch (TransformerException tfe) { tfe.printStackTrace(); } }
-		 * *****************************************************************
-		 * *****************************************************************
-		 */
-
-		/*
 		 * EXAMPLE 2 -- see
-		 * http://www.genedavis.com/library/xml/java_dom_xml_creation.jsp * try
-		 * { ///////////////////////////// //Creating an empty XML Document
-		 * 
-		 * //We need a Document DocumentBuilderFactory dbfac =
-		 * DocumentBuilderFactory.newInstance(); DocumentBuilder docBuilder =
-		 * dbfac.newDocumentBuilder(); Document doc = docBuilder.newDocument();
-		 * 
-		 * //////////////////////// //Creating the XML tree
-		 * 
-		 * //create the root element and add it to the document Element root =
-		 * doc.createElement("root"); doc.appendChild(root);
-		 * 
-		 * //create a comment and put it in the root element Comment comment =
-		 * doc.createComment("Just a thought"); root.appendChild(comment);
-		 * 
-		 * //create child element, add an attribute, and add to root Element
-		 * child = doc.createElement("child"); child.setAttribute("name",
-		 * "value"); root.appendChild(child);
-		 * 
-		 * //add a text element to the child Text text =
-		 * doc.createTextNode("Filler, ... I could have had a foo!");
-		 * child.appendChild(text);
-		 * 
-		 * ///////////////// //Output the XML
-		 * 
-		 * //set up a transformer TransformerFactory transfac =
-		 * TransformerFactory.newInstance(); Transformer trans =
-		 * transfac.newTransformer();
-		 * trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		 * trans.setOutputProperty(OutputKeys.INDENT, "yes");
-		 * 
-		 * //create string from xml tree StringWriter sw = new StringWriter();
-		 * StreamResult result = new StreamResult(sw); DOMSource source = new
-		 * DOMSource(doc); trans.transform(source, result); String xmlString =
-		 * sw.toString();
-		 * 
-		 * //print xml System.out.println("Here's the xml:\n\n" + xmlString);
-		 * 
-		 * } catch (Exception e) { System.out.println(e); }
-		 * *********************************************************************
-		 * *********************************************************************
+		 * http://www.genedavis.com/library/xml/java_dom_xml_creation.jsp 
 		 */
+		 try { ///////////////////////////// //Creating an empty XML Document
+		 
+			 //We need a Document 
+			 DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance(); 
+			 DocumentBuilder docBuilder = dbfac.newDocumentBuilder(); 
+			 Document doc = docBuilder.newDocument();
+		  
+			//////////////////////// //Creating the XML tree
+		 
+			//create the root element and add it to the document Element root =
+			doc.createElement("root"); doc.appendChild(root);
+		 
+			//create a comment and put it in the root element Comment comment =
+			doc.createComment("Just a thought"); root.appendChild(comment);
+			 
+			 //create child element, add an attribute, and add to root Element
+			 child = doc.createElement("child"); 
+			 child.setAttribute("name", "value"); 
+			 root.appendChild(child);
+		 
+			 //add a text element to the child 
+			 Text text = doc.createTextNode("Filler, ... I could have had a foo!");
+			 child.appendChild(text);
+		 
+			 ///////////////// //Output the XML
+		 
+			 //set up a transformer 
+			 TransformerFactory transfac = TransformerFactory.newInstance(); 
+			 Transformer trans = transfac.newTransformer();
+			 trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			 trans.setOutputProperty(OutputKeys.INDENT, "yes");
+			 
+			 //create string from xml tree StringWriter sw = new StringWriter();
+			 StreamResult result = new StreamResult(sw); 
+			 DOMSource source = new DOMSource(doc); 
+			 trans.transform(source, result); 
+			 String xmlString = sw.toString();
+		 
+			 //print xml System.out.println("Here's the xml:\n\n" + xmlString);
+		 
+		 } catch (Exception e) { 
+			 System.out.println(e); 
+		 }
 	}
 }

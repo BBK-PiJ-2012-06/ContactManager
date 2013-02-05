@@ -4,6 +4,10 @@ import java.util.Set;
 import java.util.List;
 import java.io.IOException;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
 import main.Contact;
 import main.FutureMeeting;
 import main.PastMeeting;
@@ -65,8 +69,11 @@ public interface DataUtil {
 	 * @param filename the path to the file to load
 	 * @throws IllegalArgumentException if the file does not exist
 	 * @throws IOException if the file cannot be read
+	 * @throws ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested
+	 * @throws SAXException if the XML file is malformed 
+	 * 
 	 **/
-	void loadFile(String filename) throws IOException;
+	void loadFile(String filename) throws IOException, ParserConfigurationException, SAXException if the XML file is malformed;
 
 	/**
 	 * Writes the data stored in memory to the file at the given path.
