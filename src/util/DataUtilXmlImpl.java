@@ -117,54 +117,30 @@ public class DataUtilXmlImpl implements DataUtil {
 	 **/
 	@Override
 	public void writeFile(String filename) {
-		System.out.println("writeFile not yet implemented");
-				
-		/*
-		 * EXAMPLE 2 -- see
-		 * http://www.genedavis.com/library/xml/java_dom_xml_creation.jsp 
-		 */
-		 try { ///////////////////////////// //Creating an empty XML Document
-		 
-			 //We need a Document 
-			 DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance(); 
-			 DocumentBuilder docBuilder = dbfac.newDocumentBuilder(); 
-			 Document doc = docBuilder.newDocument();
+		// Written with the help of the tutorial found at http://www.roseindia.net/xml/dom/
+		
+		//Create instance of DocumentBuilderFactory
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			//Get the DocumentBuilder
+			DocumentBuilder builder = factory.newDocumentBuilder();
+		
+		  //Create blank DOM Document
+		  doc = builder.newDocument();
 		  
-			//////////////////////// //Creating the XML tree
-		 
-			//create the root element and add it to the document Element root =
-			doc.createElement("root"); doc.appendChild(root);
-		 
-			//create a comment and put it in the root element Comment comment =
-			doc.createComment("Just a thought"); root.appendChild(comment);
-			 
-			 //create child element, add an attribute, and add to root Element
-			 child = doc.createElement("child"); 
-			 child.setAttribute("name", "value"); 
-			 root.appendChild(child);
-		 
-			 //add a text element to the child 
-			 Text text = doc.createTextNode("Filler, ... I could have had a foo!");
-			 child.appendChild(text);
-		 
-			 ///////////////// //Output the XML
-		 
-			 //set up a transformer 
-			 TransformerFactory transfac = TransformerFactory.newInstance(); 
-			 Transformer trans = transfac.newTransformer();
-			 trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-			 trans.setOutputProperty(OutputKeys.INDENT, "yes");
-			 
-			 //create string from xml tree StringWriter sw = new StringWriter();
-			 StreamResult result = new StreamResult(sw); 
-			 DOMSource source = new DOMSource(doc); 
-			 trans.transform(source, result); 
-			 String xmlString = sw.toString();
-		 
-			 //print xml System.out.println("Here's the xml:\n\n" + xmlString);
-		 
-		 } catch (Exception e) { 
-			 System.out.println(e); 
-		 }
+		  //create the root element
+		  Element root = doc.createElement("root");
+		  //all it to the xml tree
+		  doc.appendChild(root);
+		  
+
+		  //create child element
+		  Element childElement = doc.createElement("Child");
+		  //Add the attribute to the child
+		  childElement.setAttribute("attribute1","The value of Attribute 1");
+		  root.appendChild(childElement);
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
 	}
 }

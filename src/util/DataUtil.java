@@ -73,7 +73,7 @@ public interface DataUtil {
 	 * @throws SAXException if the XML file is malformed 
 	 * 
 	 **/
-	void loadFile(String filename) throws IOException, ParserConfigurationException, SAXException if the XML file is malformed;
+	void loadFile(String filename) throws IOException, ParserConfigurationException, SAXException;
 
 	/**
 	 * Writes the data stored in memory to the file at the given path.
