@@ -27,6 +27,7 @@ import org.xml.sax.SAXException;
 import main.Contact;
 import main.ContactImpl;
 import main.FutureMeeting;
+import main.Meeting;
 import main.PastMeeting;
 
 /**
@@ -116,31 +117,148 @@ public class DataUtilXmlImpl implements DataUtil {
 	 * @throws IOException if the file cannot be written
 	 **/
 	@Override
-	public void writeFile(String filename) {
+	public void writeFile(String filename) throws IOException {
 		// Written with the help of the tutorial found at http://www.roseindia.net/xml/dom/
 		
-		//Create instance of DocumentBuilderFactory
 		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			//Get the DocumentBuilder
-			DocumentBuilder builder = factory.newDocumentBuilder();
-		
-		  //Create blank DOM Document
-		  doc = builder.newDocument();
+			//Create blank DOM tree
+			clearDocument();
 		  
-		  //create the root element
-		  Element root = doc.createElement("root");
-		  //all it to the xml tree
-		  doc.appendChild(root);
-		  
+			//create the root element
+			Element root = doc.createElement("ContactManagerData");
+			//add it to the xml tree
+			doc.appendChild(root);
+			
+			//Append the Contacts, PastMeetings & FutureMeetings data under root
+			appendContacts(root);
+			appendPastMeetings(root);
+			//**********CONTINUE FROM HERE!!!!***********//
+			
+			} catch (ParserConfigurationException e) {
+				e.printStackTrace();
+		}	
+	}
 
-		  //create child element
-		  Element childElement = doc.createElement("Child");
-		  //Add the attribute to the child
-		  childElement.setAttribute("attribute1","The value of Attribute 1");
-		  root.appendChild(childElement);
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
+	/**
+	 * Creates an empty DOM Document (pointed to by private field doc).
+	 * 
+	 * @throws ParserConfigurationException if a DocumentBuilder cannot be configured
+	 */
+	private void clearDocument() throws ParserConfigurationException {
+		//Create instance of DocumentBuilderFactory
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		//Get the DocumentBuilder
+		DocumentBuilder builder = factory.newDocumentBuilder();	
+		//Create blank DOM Document
+		doc = builder.newDocument();
+	}
+
+	/**
+	 * Appends data for all known contacts as "contact" elements which are children of a "Contacts"
+	 * element, which is in turn appended as a child of the given root element.
+	 *  
+	 * @param root the element to append Contacts to
+	 */
+	private void appendContacts(Element root) {
+		//Create top-level element to contain Contacts
+		Element contactRoot = doc.createElement("Contacts");
+		root.appendChild(contactRoot);
+		
+		//Append all contacts under contactRoot
+		//Using http://www.w3schools.com/dtd/dtd_el_vs_attr.asp for guidance as to how to store
+		//data as attribute or child element
+		for(Contact contact : knownContacts) {
+			Element contactElem = doc.createElement("contact");
+			contactRoot.appendChild(contactElem);
+			
+			//add contact id as attribute
+			setIdAttr(contactElem, contact.getID());
+			
+			//add contact data as children
+			appendData(contactElem, "name", contact.getName());
+			appendData(contactElem, "notes", contact.getNotes());
 		}
+	}
+
+	/**
+	 * Stores the value of the given ID as an attribute of the given element; 
+	 * e.g. if the element reads <contact></contact> it will become <contact id="x"></contact>.
+	 * 
+	 * @param elem the element to assign the attribute to
+	 * @param id the ID of the object represented by the element
+	 */
+	private void setIdAttr(Element elem, int id) {
+		elem.setAttribute("id", Integer.toString(id));
+	}
+
+	/**
+	 * Stores the given data as a text node within a child under the given element with the 
+	 * given tag; e.g. if the data to add is a contact's name, and that name is "Alice", the result
+	 * will be <contact><name>Alice</name></contact>.
+	 * @param elem the element to append data to
+	 * @param tag the name for the child element
+	 * @param data the data to store in the child element
+	 */
+	private void appendData(Element elem, String tag, String data) {
+		Element dataElem = doc.createElement(tag);
+		elem.appendChild(dataElem);
+		
+		//Store data as TextNode under dataElem
+		dataElem.appendChild(doc.createTextNode(data));
+	}
+	
+	/**
+	 * Appends data for all past meetings as "meeting" elements which are children of a "PastMeetings"
+	 * element, which is in turn appended as a child of the given root element.
+	 *  
+	 * @param root the element to append PastMeetings to
+	 */
+	private void appendPastMeetings(Element root) {
+		//Create top-level element to contain PastMeetings
+		Element pastMeetingsRoot = doc.createElement("PastMeetings");
+		root.appendChild(pastMeetingsRoot);
+		
+		//Append all past meetings as meeting elements under pastMeetingsRoot
+		for(PastMeeting pastMeeting : pastMeetings) {
+			Element meetingElem = createMeetingElement(pastMeeting);
+			pastMeetingsRoot.appendChild(meetingElem);
+			
+			//createMeetingElement filled meetingElem with all pastMeeting's data 
+			//-- except for the notes
+			appendData(meetingElem, "notes", pastMeeting.getNotes());
+		}
+	}
+
+	/**
+	 * Creates and returns an element filled with data representing the given meeting.
+	 * 
+	 * @param meeting the meeting to be represented by the element
+	 * @return the element representing the meeting
+	 */
+	private Element createMeetingElement(Meeting meeting) {
+		//Create meeting element
+		Element meetingElem = doc.createElement("meeting");
+		
+		//add meeting id as attribute
+		setIdAttr(meetingElem, meeting.getID());
+		
+		//append meeting data
+		//-- date
+		appendData(meetingElem, "date", CalendarUtil.format(meeting.getDate()));
+		
+		//--contacts
+		//create element to contain all contacts
+		Element contactsElem = doc.createElement("contacts");
+		meetingElem.appendChild(contactsElem);
+		
+		//just need to store the ID of each contact
+		for(Contact contact : meeting.getContacts()) {
+			Element contactElem = doc.createElement("contact");
+			contactsElem.appendChild(contactElem);
+			
+			setIdAttr(contactElem, contact.getID());
+		}
+		
+		return meetingElem;
 	}
 }

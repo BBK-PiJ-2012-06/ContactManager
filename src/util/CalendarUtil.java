@@ -11,8 +11,7 @@ public class CalendarUtil {
 	/**
 	 * Checks whether the given date is in the past.
 	 * 
-	 * @param date
-	 *            the date to check
+	 * @param date the date to check
 	 * @return whether the date is in the past (true) or not (false)
 	 **/
 	public static boolean isInPast(Calendar date) {
@@ -27,8 +26,7 @@ public class CalendarUtil {
 	/**
 	 * Checks whether the given date is in the future.
 	 * 
-	 * @param date
-	 *            the date to check
+	 * @param date the date to check
 	 * @return whether the date is in the future (true) or not (false)
 	 **/
 	public static boolean isInFuture(Calendar date) {
@@ -44,8 +42,7 @@ public class CalendarUtil {
 	 * Formats the given date to a simple string of the form "dd/MM/yy HH:mm"
 	 * (see SimpleDateFormat for pattern letter definitions)
 	 * 
-	 * @param date
-	 *            the date to be formatted
+	 * @param date the date to be formatted
 	 * @return a string representation of the given date
 	 **/
 	public static String format(Calendar date) {
