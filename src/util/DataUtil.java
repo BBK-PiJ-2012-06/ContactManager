@@ -69,14 +69,11 @@ public interface DataUtil {
 	 * @param filename the path to the file to load
 	 * @throws IllegalArgumentException if the file does not exist
 	 * @throws IOException if the file cannot be read
-	 * @throws ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested
-	 * @throws SAXException if the XML file is malformed 
-	 * 
 	 **/
 	void loadData(String filename) throws IOException, ParserConfigurationException, SAXException;
 
 	/**
-	 * Writes the data stored in memory to the file at the given path.
+	 * Saves the data stored in memory to the file at the given path.
 	 * 
 	 * If the given file already exists, it will be overwritten.
 	 * 

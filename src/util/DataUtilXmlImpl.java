@@ -4,28 +4,26 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.List;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 import java.io.File;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import main.Contact;
-import main.ContactImpl;
 import main.FutureMeeting;
 import main.Meeting;
 import main.PastMeeting;
@@ -89,9 +87,7 @@ public class DataUtilXmlImpl implements DataUtil {
 	 * 
 	 * @param filename the path to the file to load
 	 * @throws IllegalArgumentException if the file does not exist
-	 * @throws IOException if the file cannot be read
-	 * @throws ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested 
-	 * @throws SAXException if the XML file is malformed 
+	 * @throws IOException if the file cannot be read 
 	 **/
 	@Override
 	public void loadData(String filename) throws IOException, ParserConfigurationException, SAXException {
@@ -137,9 +133,12 @@ public class DataUtilXmlImpl implements DataUtil {
 			appendFutureMeetings(root);
 			
 			//Finally, write out the DOM tree to file
-			
-			} catch (ParserConfigurationException e) {
+			writeFile(filename);
+		} catch (ParserConfigurationException e) {
 				e.printStackTrace();
+		} catch (TransformerException e) {
+				//Thrown from writeFile -- throw up an IOException for ContactManager to catch
+				throw new IOException("Problem writing to file: " + filename, e);
 		}	
 	}
 
@@ -282,5 +281,32 @@ public class DataUtilXmlImpl implements DataUtil {
 		}
 		
 		return meetingElem;
+	}
+	
+	/**
+	 * Writes the DOM document tree to the file specified at the given path.
+	 * If the file already exists, it will be overwritten.
+	 * 
+	 * @param filename the path to the file to write to
+	 * @throws TransformerException if something serious occurs when configuring the Transfomer or TransformerFactory
+	 */
+	private void writeFile(String filename) throws TransformerException {
+		//Use a Transformer for output -- changes the DOM tree into XML string
+		Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		
+		//Configure the transformer to write pretty, human-readable XML;
+		//thanks to http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		
+		//Transformers convert a Source into a Result (funnily)
+		//--prepare Result (a StreamResult made from our file)
+		Result result = new StreamResult(new File(filename));
+		
+		//--prepare Source (a DOMSource made from our doc)
+		Source source = new DOMSource(doc);
+		
+		//Call transform to write the file
+		transformer.transform(source, result);
 	}
 }
