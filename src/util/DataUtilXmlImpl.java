@@ -94,7 +94,7 @@ public class DataUtilXmlImpl implements DataUtil {
 	 * @throws SAXException if the XML file is malformed 
 	 **/
 	@Override
-	public void loadFile(String filename) throws IOException, ParserConfigurationException, SAXException {
+	public void loadData(String filename) throws IOException, ParserConfigurationException, SAXException {
 		System.out.println("loadFile not yet implemented");
 		
 		File file = new File(filename);
@@ -117,14 +117,16 @@ public class DataUtilXmlImpl implements DataUtil {
 	 * @throws IOException if the file cannot be written
 	 **/
 	@Override
-	public void writeFile(String filename) throws IOException {
+	public void saveData(String filename) throws IOException {
 		// Written with the help of the tutorial found at http://www.roseindia.net/xml/dom/
+		// as well as http://docs.oracle.com/javaee/1.4/tutorial/doc/JAXPXSLT4.html for writing
+		// to file.
 		
 		try {
 			//Create blank DOM tree
 			clearDocument();
 		  
-			//create the root element
+			//Create the root element
 			Element root = doc.createElement("ContactManagerData");
 			//add it to the xml tree
 			doc.appendChild(root);
@@ -132,7 +134,9 @@ public class DataUtilXmlImpl implements DataUtil {
 			//Append the Contacts, PastMeetings & FutureMeetings data under root
 			appendContacts(root);
 			appendPastMeetings(root);
-			//**********CONTINUE FROM HERE!!!!***********//
+			appendFutureMeetings(root);
+			
+			//Finally, write out the DOM tree to file
 			
 			} catch (ParserConfigurationException e) {
 				e.printStackTrace();
@@ -214,7 +218,7 @@ public class DataUtilXmlImpl implements DataUtil {
 	 * @param root the element to append PastMeetings to
 	 */
 	private void appendPastMeetings(Element root) {
-		//Create top-level element to contain PastMeetings
+		//Create container element for PastMeetings
 		Element pastMeetingsRoot = doc.createElement("PastMeetings");
 		root.appendChild(pastMeetingsRoot);
 		
@@ -228,7 +232,25 @@ public class DataUtilXmlImpl implements DataUtil {
 			appendData(meetingElem, "notes", pastMeeting.getNotes());
 		}
 	}
-
+	
+	/**
+	 * Appends data for all future meetings as "meeting" elements which are children of a "FutureMeetings"
+	 * element, which is in turn appended as a child of the given root element.
+	 *  
+	 * @param root the element to append FutureMeetings to
+	 */
+	private void appendFutureMeetings(Element root) {
+		//Create container element for FutureMeetings
+		Element futureMeetingsRoot = doc.createElement("FutureMeetings");
+		root.appendChild(futureMeetingsRoot);
+		
+		//Append all future meetings as meeting elements under futureMeetingsRoot
+		for(FutureMeeting futureMeeting : futureMeetings) {
+			Element meetingElem = createMeetingElement(futureMeeting);
+			futureMeetingsRoot.appendChild(meetingElem);
+		}
+	}
+	
 	/**
 	 * Creates and returns an element filled with data representing the given meeting.
 	 * 
