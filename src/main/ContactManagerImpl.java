@@ -17,17 +17,17 @@ import util.DataManagerImpl;
 public class ContactManagerImpl implements ContactManager {
 	private final String DATA_FILE = "contacts.txt";
 	private DataManager data = new DataManagerImpl();
-	private int next_contact_id = 0;
-	private int next_meeting_id = 0;
+	private int nextContactId = 0;
+	private int nextMeetingId = 0;
 	private Set<Contact> knownContacts = new HashSet<Contact>();
 	private List<PastMeeting> pastMeetings = new LinkedList<PastMeeting>();
 	private List<FutureMeeting> futureMeetings = new LinkedList<FutureMeeting>();
 	private Map<Integer, Contact> contactIds = new HashMap<Integer, Contact>();
 	private Map<Integer, PastMeeting> pastMeetingIds = new HashMap<Integer, PastMeeting>();
 	private Map<Integer, FutureMeeting> futureMeetingIds = new HashMap<Integer, FutureMeeting>();
-	private Map<Contact, Set<PastMeeting>> pastMeetingContacts = new HashMap<Contact, Set<PastMeeting>>();
-	private Map<Contact, Set<FutureMeeting>> futureMeetingContacts = new HashMap<Contact, Set<FutureMeeting>>();
-	private Map<Calendar, Set<Meeting>> meetingDates = new HashMap<Calendar, Set<Meeting>>();
+	private Map<Contact, Set<PastMeeting>> contactAttended = new HashMap<Contact, Set<PastMeeting>>();
+	private Map<Contact, Set<FutureMeeting>> contactAttending = new HashMap<Contact, Set<FutureMeeting>>();
+	private Map<Calendar, Set<Meeting>> meetingsOnDate = new HashMap<Calendar, Set<Meeting>>();
 	
 	/**
 	 * Creates a ContactManager using data from previous sessions stored in the local file
@@ -59,7 +59,7 @@ public class ContactManagerImpl implements ContactManager {
 
 	/**
 	 * Populates the mappings from ID to contacts, past meetings and future meetings,
-	 * plus the mappings from contact to meetings attended/attending.  
+	 * plus the mappings from contact to meetings attended/contactAttending.  
 	 */
 	private void populateMaps() {
 		// Contacts
@@ -68,23 +68,23 @@ public class ContactManagerImpl implements ContactManager {
 			// Initialise the set of past and future meetings attended,
 			// using tree set to keep meetings ordered chronologically
 			// (see http://java2novice.com/java-collections-and-util/treeset/comparator-object/)
-			pastMeetingContacts.put(contact, new TreeSet<PastMeeting>(CalendarUtil.getMeetingComparator()));
-			futureMeetingContacts.put(contact, new TreeSet<FutureMeeting>(CalendarUtil.getMeetingComparator()));
+			contactAttended.put(contact, new TreeSet<PastMeeting>(CalendarUtil.getMeetingComparator()));
+			contactAttending.put(contact, new TreeSet<FutureMeeting>(CalendarUtil.getMeetingComparator()));
 		}
 		// Past meetings
 		for(PastMeeting meeting : pastMeetings) {
 			pastMeetingIds.put(meeting.getID(), meeting);
 			for(Contact attendee : meeting.getContacts()) {
-				pastMeetingContacts.get(attendee).add(meeting);
+				contactAttended.get(attendee).add(meeting);
 			}
 			// Initialise the set of meetings that occurred on this date
-			meetingDates.put(CalendarUtil.trimTime(meeting.getDate()), new TreeSet<Meeting>(CalendarUtil.getMeetingComparator()));
+			meetingsOnDate.put(CalendarUtil.trimTime(meeting.getDate()), new TreeSet<Meeting>(CalendarUtil.getMeetingComparator()));
 		}
 		// Future meetings
 		for(FutureMeeting meeting : futureMeetings) {
 			futureMeetingIds.put(meeting.getID(), meeting);
 			for(Contact attendee : meeting.getContacts()) {
-				futureMeetingContacts.get(attendee).add(meeting);
+				contactAttending.get(attendee).add(meeting);
 			}
 		}
 	}
@@ -115,7 +115,7 @@ public class ContactManagerImpl implements ContactManager {
 		}
 		
 		// All is well, add the meeting
-		int id = next_meeting_id++;
+		int id = nextMeetingId++;
 		FutureMeeting newMeeting = new FutureMeetingImpl(id, contacts, date);
 		futureMeetings.add(newMeeting);
 		futureMeetingIds.put(id, newMeeting);
@@ -215,10 +215,10 @@ public class ContactManagerImpl implements ContactManager {
 			throw new IllegalArgumentException("Given contact does not exist");
 		}
 		
-		// Fetch the set of future meetings this contact is attending
+		// Fetch the set of future meetings this contact is contactAttending
 		// (tree set has taken care of chronological ordering)
 		// (may be empty)
-		return new LinkedList<Meeting>(futureMeetingContacts.get(contact));
+		return new LinkedList<Meeting>(contactAttending.get(contact));
 	}
 
 	/**
@@ -236,7 +236,7 @@ public class ContactManagerImpl implements ContactManager {
 	@Override
 	public List<Meeting> getFutureMeetingList(Calendar date) {
 		// Fetch meetings on this date
-		Set<Meeting> requestedMeetings = meetingDates.get(CalendarUtil.trimTime(date));
+		Set<Meeting> requestedMeetings = meetingsOnDate.get(CalendarUtil.trimTime(date));
 		
 		// If no meetings on this date, requestedMeetings is null
 		if(requestedMeetings == null) {
@@ -270,7 +270,7 @@ public class ContactManagerImpl implements ContactManager {
 		// Fetch the set of past meetings this contact attended
 		// (tree set has taken care of chronological ordering)
 		// (may be empty)
-		return new LinkedList<PastMeeting>(pastMeetingContacts.get(contact));		
+		return new LinkedList<PastMeeting>(contactAttended.get(contact));		
 	}
 
 	/**
@@ -321,7 +321,7 @@ public class ContactManagerImpl implements ContactManager {
 	 */
 	private void createPastMeeting(Set<Contact> contacts, Calendar date, String text) {
 		// Get an ID
-		int id = next_meeting_id++;
+		int id = nextMeetingId++;
 		
 		// Initialise
 		PastMeeting newMeeting = new PastMeetingImpl(id, contacts, date, text);
@@ -329,9 +329,9 @@ public class ContactManagerImpl implements ContactManager {
 		// Add to collections
 		pastMeetings.add(newMeeting);
 		pastMeetingIds.put(id, newMeeting);
-		meetingDates.get(CalendarUtil.trimTime(date)).add(newMeeting);
+		meetingsOnDate.get(CalendarUtil.trimTime(date)).add(newMeeting);
 		for(Contact contact : contacts) {
-			pastMeetingContacts.get(contact).add(newMeeting);
+			contactAttended.get(contact).add(newMeeting);
 		}
 	}
 
@@ -372,9 +372,9 @@ public class ContactManagerImpl implements ContactManager {
 			// As meeting has occurred, remove it from collections
 			futureMeetings.remove(meeting);
 			for(Contact contact : meeting.getContacts()) {
-				futureMeetingContacts.get(contact).remove(meeting);
+				contactAttending.get(contact).remove(meeting);
 			}
-			meetingDates.get(CalendarUtil.trimTime(meeting.getDate())).remove(meeting);
+			meetingsOnDate.get(CalendarUtil.trimTime(meeting.getDate())).remove(meeting);
 			
 			// Initialise a new past meeting 
 			PastMeeting pastMeeting = new PastMeetingImpl(meeting, text);
@@ -382,10 +382,10 @@ public class ContactManagerImpl implements ContactManager {
 			// Add to collections
 			pastMeetings.add(pastMeeting);
 			pastMeetingIds.put(id, pastMeeting);
-			meetingDates.get(CalendarUtil.trimTime(pastMeeting.getDate())).add(pastMeeting);
+			meetingsOnDate.get(CalendarUtil.trimTime(pastMeeting.getDate())).add(pastMeeting);
 			
 			for(Contact contact : pastMeeting.getContacts()) {
-				Set<PastMeeting> meetingsAttended = pastMeetingContacts.get(contact); 
+				Set<PastMeeting> meetingsAttended = contactAttended.get(contact); 
 				// May be no meetings attended (this meeting may have been the first attended by this contact)
 				if(meetingsAttended == null) {
 					meetingsAttended = new TreeSet<PastMeeting>(CalendarUtil.getMeetingComparator());
@@ -415,7 +415,7 @@ public class ContactManagerImpl implements ContactManager {
 		}
 		
 		// Obtain an ID
-		int id = next_contact_id++;
+		int id = nextContactId++;
 		
 		// Initialise and add
 		Contact contact = new ContactImpl(id, name, notes);
