@@ -136,23 +136,14 @@ public class ContactManagerImpl implements ContactManager {
 	 **/
 	@Override
 	public PastMeeting getPastMeeting(int id) {
-		/////////////////----CONTINUE HERE!-----///////////////////////
-		// Get the meeting with this id (if no mapping for id, returns null,
-		// which is the desired behaviour in this case)
-		PastMeeting requestedMeeting = meetings.get(id);
-
-		// Check date is in past if not null
-		if (requestedMeeting == null) {
-			return (PastMeeting) requestedMeeting;
+		// Check that the ID isn't that of a future meeting
+		if(futureMeetingIds.containsKey(id)) {
+			throw new IllegalArgumentException("Requested ID, " + id + ", belongs to a future meeting");
 		}
 
-		if (CalendarUtil.isInPast(requestedMeeting.getDate())) {
-			return (PastMeeting) requestedMeeting;
-		} else {
-			throw new IllegalArgumentException(
-					"Requested meeting is on a future date: "
-							+ CalendarUtil.format(requestedMeeting.getDate()));
-		}
+		// Fetch the meeting with this id (if no mapping for id get(id) returns null)
+		PastMeeting requestedMeeting = pastMeetingIds.get(id);
+		return requestedMeeting;
 	}
 
 	/**
