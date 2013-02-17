@@ -1,6 +1,7 @@
 package util;
 
 import java.util.Calendar;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 /**
@@ -48,5 +49,26 @@ public class CalendarUtil {
 	public static String format(Calendar date) {
 		SimpleDateFormat simpleFormat = new SimpleDateFormat("dd/MM/yy HH:mm");
 		return simpleFormat.format(date.getTime());
+	}
+	
+	/**
+	 * Parses the given formatted calendar string of the form "dd/MM/yy HH:mm"
+	 * (see SimpleDateFormat for pattern letter definitions)
+	 * 
+	 * @param dateStr the string to be parsed
+	 * @return the Calendar represented by the given string
+	 */
+	public static Calendar parse(String dateStr) {
+		SimpleDateFormat simpleFormat = new SimpleDateFormat("dd/MM/yy HH:mm");
+		Calendar date = Calendar.getInstance();
+		
+		try {
+			date.setTime(simpleFormat.parse(dateStr));
+		} catch (ParseException e) {
+			System.out.println("Could not parse date string: " + dateStr);
+			System.out.println("format is dd/MM/yy HH:mm");
+			e.printStackTrace();
+		}
+		return date;
 	}
 }

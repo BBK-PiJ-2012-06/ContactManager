@@ -1,5 +1,6 @@
 package util;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,13 +25,16 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import main.Contact;
 import main.ContactImpl;
 import main.FutureMeeting;
+import main.FutureMeetingImpl;
 import main.Meeting;
 import main.PastMeeting;
+import main.PastMeetingImpl;
 
 /**
  * An implementation of the DataUtil interface.
@@ -103,8 +107,9 @@ public class DataUtilXmlImpl implements DataUtil {
 			
 			//Extract object information from the document
 			extractContacts();
-			////////////////////////////////////////////////
-		
+			extractPastMeetings();
+			extractFutureMeetings();
+			//////////////////////////////////////////////
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (SAXException e) {
@@ -145,7 +150,6 @@ public class DataUtilXmlImpl implements DataUtil {
 		//Get an instance of a builder, and use it to parse the desired file
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		doc = builder.parse(file);
-	
 	}
 
 	@Override
@@ -193,7 +197,7 @@ public class DataUtilXmlImpl implements DataUtil {
 		for(Node contactNode = contactsRoot.getFirstChild(); contactNode != null; contactNode.getNextSibling()) {
 			
 			//Contact IDs are stored as the element's attribute
-			int id = getIdAttribute(contactNode);
+			int id = getIdAttr(contactNode);
 			
 			//Retrieve the name and notes of this contact
 			String name = getData(contactNode, "name");
@@ -208,6 +212,59 @@ public class DataUtilXmlImpl implements DataUtil {
 	}
 	
 	/**
+	 * Extracts the past meeting data from the DOM document and uses it to create PastMeeting
+	 * objects in memory. 
+	 */
+	private void extractPastMeetings() {
+		//Get hold of the element containing meeting data -- tag is "PastMeetings"
+		Node meetingsRoot = doc.getElementsByTagName("PastMeetings").item(0);
+		
+		//PastMeeting data is stored in the children of meetingsRoot, so for(each of these children...)
+		for(Node meetingNode = meetingsRoot.getFirstChild(); meetingNode != null; meetingNode.getNextSibling()) {
+			
+			//Meeting IDs are stored as the element's attribute
+			int id = getIdAttr(meetingNode);
+			
+			//Retrieve the date and parse using CalendarUtil
+			Calendar date = CalendarUtil.parse(getData(meetingNode, "date"));
+			
+			//Retrieve participating contacts
+			Set<Contact> contacts = getContactsFromMeeting(meetingNode);
+			
+			//Retrieve the notes
+			String notes = getData(meetingNode, "notes");
+			
+			//Add a new meeting to list using this data
+			pastMeetings.add(new PastMeetingImpl(id, contacts, date, notes));
+		}
+	}
+
+	/**
+	 * Extracts the past meeting data from the DOM document and uses it to create PastMeeting
+	 * objects in memory.
+	 */
+	private void extractFutureMeetings() {
+		//Get hold of the element containing meeting data -- tag is "FutureMeetings"
+		Node meetingsRoot = doc.getElementsByTagName("FutureMeetings").item(0);
+		
+		//FutureMeeting data is stored in the children of meetingsRoot, so for(each of these children...)
+		for(Node meetingNode = meetingsRoot.getFirstChild(); meetingNode != null; meetingNode.getNextSibling()) {
+			
+			//Meeting IDs are stored as the element's attribute
+			int id = getIdAttr(meetingNode);
+			
+			//Retrieve the date and parse using CalendarUtil
+			Calendar date = CalendarUtil.parse(getData(meetingNode, "date"));
+			
+			//Retrieve participating contacts
+			Set<Contact> contacts = getContactsFromMeeting(meetingNode);
+			
+			//Add a new meeting to list using this data
+			futureMeetings.add(new FutureMeetingImpl(id, contacts, date));
+		}
+	}
+
+	/**
 	 * Extracts the data stored under the given node with the given tag; e.g., for a contact
 	 * node <contact><name>Alice</name></contact>, the tag "name" would return the string "Alice".
 	 * 
@@ -220,7 +277,6 @@ public class DataUtilXmlImpl implements DataUtil {
 		return dataNode.getTextContent();
 	}
 
-
 	/**
 	 * Returns the integer value of the attribute of the given node, representing the ID of 
 	 * object; e.g. if the given node reads <contact id="3"></contact>, getAttribute would
@@ -229,10 +285,33 @@ public class DataUtilXmlImpl implements DataUtil {
 	 * @param node the node to extract the attribute value from
 	 * @return the value of the given node's attribute
 	 */
-	private int getIdAttribute(Node node) {
+	private int getIdAttr(Node node) {
 		return Integer.parseInt(node.getAttributes().getNamedItem("id").getNodeValue());
 	}
 
+	/**
+	 * Extracts the set of contacts from the data under the given "meeting" node.
+	 * 
+	 * @param meetingNode the node to extract contact data from 
+	 * @return the set of contacts attending/ that attended the meeting represented by this node
+	 */
+	private Set<Contact> getContactsFromMeeting(Node meetingNode) {
+		Set<Contact> contactsAtMeeting = new HashSet<Contact>();
+		
+		//Find the element that holds all contact elements
+		Node contactsNode = ((Element) meetingNode).getElementsByTagName("contacts").item(0);
+		
+		//Iterate through the contactNodeList using siblings of the first child node
+		for(Node contactNode = contactsNode.getFirstChild(); contactNode != null; contactNode.getNextSibling()) {
+			//Get the contact's ID from the node attribute
+			int id = getIdAttr(contactNode);
+			
+			//Fetch this contact from the ID->Contact map and add to the set to return
+			contactsAtMeeting.add(contactIdMap.get(id));
+		}
+			
+		return contactsAtMeeting;
+	}
 
 	/**
 	 * Creates an empty DOM Document (pointed to by private field doc).
