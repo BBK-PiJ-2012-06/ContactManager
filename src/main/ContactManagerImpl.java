@@ -114,7 +114,7 @@ public class ContactManagerImpl implements ContactManager {
 		} catch(NullPointerException e) {
 			throw new NullPointerException("Given contacts contains null contact");
 		} catch(IllegalArgumentException e) {
-			throw new IllegalArgumentException("Given contacts contains unknown contact");
+			throw new IllegalArgumentException("Given contacts contains unknown contact", e);
 		}
 		
 		// All is well, add the meeting
@@ -288,7 +288,52 @@ public class ContactManagerImpl implements ContactManager {
 	 **/
 	@Override
 	public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text) {
+		// Ensure arguments are not null
+		if(contacts == null) {
+			throw new NullPointerException("Contacts is null");
+		}
+		if(date == null) {
+			throw new NullPointerException("Date is null");
+		}
+		if(text == null) {
+			throw new NullPointerException("Text is null");
+		}
 		
+		// Ensure all contacts are known... 
+		try {
+			checkContactsAreKnown(contacts);
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException("Contacts contains an unknown contact", e);
+		}
+		// ...and the date is in the past
+		if(!CalendarUtil.isInPast(date)) {
+			throw new IllegalArgumentException("Date is not in past");
+		}
+		
+		// Arguments check out, create meeting and add it to collections
+		createPastMeeting(contacts, date, text);
+	}
+
+	/**
+	 * Handles the initialisation of a PastMeeting and adds it to the appropriate collections
+	 * using the contacts, date and text provided.
+	 *  
+	 * @param contacts the contacts who attended the meeting
+	 * @param date the date and time the meeting took place
+	 * @param text messages to record about the meeting
+	 */
+	private void createPastMeeting(Set<Contact> contacts, Calendar date, String text) {
+		// Get an ID
+		int id = next_meeting_id++;
+		// Initialise
+		PastMeeting newMeeting = new PastMeetingImpl(id, contacts, date, text);
+		// Add to collections
+		pastMeetings.add(newMeeting);
+		pastMeetingIds.put(id, newMeeting);
+		for(Contact contact : contacts) {
+			pastMeetingContacts.get(contact).add(newMeeting);
+		}
+		meetingDates.get(CalendarUtil.trimTime(date)).add(newMeeting);
 	}
 
 	/**
