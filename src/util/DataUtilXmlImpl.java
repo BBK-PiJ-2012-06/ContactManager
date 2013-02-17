@@ -1,7 +1,9 @@
 package util;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 import java.util.List;
 import java.io.IOException;
@@ -21,9 +23,11 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import main.Contact;
+import main.ContactImpl;
 import main.FutureMeeting;
 import main.Meeting;
 import main.PastMeeting;
@@ -35,6 +39,7 @@ import main.PastMeeting;
  **/
 public class DataUtilXmlImpl implements DataUtil {
 	private Set<Contact> knownContacts = new HashSet<Contact>();
+	private Map<Integer, Contact> contactIdMap = new HashMap<Integer, Contact>(); // Used only when loading data (the contacts associated with a meeting are stored by ID only)
 	private List<FutureMeeting> futureMeetings = new LinkedList<FutureMeeting>();
 	private List<PastMeeting> pastMeetings = new LinkedList<PastMeeting>();
 	private Document doc; // The DOM object that will model the data stored in the XML file.
@@ -82,36 +87,67 @@ public class DataUtilXmlImpl implements DataUtil {
 		return futureMeetings;
 	}
 
-	/**
-	 * Loads the data stored in the file at the given path.
-	 * 
-	 * @param filename the path to the file to load
-	 * @throws IllegalArgumentException if the file does not exist
-	 * @throws IOException if the file cannot be read 
-	 **/
 	@Override
-	public void loadData(String filename) throws IOException, ParserConfigurationException, SAXException {
-		System.out.println("loadFile not yet implemented");
+	public void loadData(String filename) throws IOException {		
+		//Clear contacts and meetings
+		knownContacts.clear();
+		pastMeetings.clear();
+		futureMeetings.clear();
 		
-		File file = new File(filename);
-		if(!file.exists()) {
-			throw new IllegalArgumentException("file " + filename + " does not exist");
+		try {
+			//Get a fresh document
+			clearDocument();
+			
+			//Load the file into a DOM document
+			loadFile(filename);
+			
+			//Extract object information from the document
+			extractContacts();
+			////////////////////////////////////////////////
+		
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			System.out.println("Could not parse XML in file: " + filename);
+			e.printStackTrace();
 		}
-		// Using tutorial from http://docs.oracle.com/javase/tutorial/jaxp/dom/readingXML.html
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder(); 
-	    doc = builder.parse(new File(filename));
-	    // ...
+		catch (IOException e) {
+			System.out.println("Could not read file: " + filename);
+			e.printStackTrace();
+		}
 	}
 
 	/**
-	 * Writes the data stored in memory to the file at the given path.
+	 * Loads data contained in the given XML file into a DOM document tree. 
 	 * 
-	 * If the given file already exists, it will be overwritten.
-	 * 
-	 * @param filename the path to the file to write to
-	 * @throws IOException if the file cannot be written
-	 **/
+	 * @param filename the path to the XML file
+	 * @throws ParserConfigurationException if a document builder cannot be created
+	 * @throws IOException if the file cannot be opened
+	 * @throws SAXException if the XML cannot be parsed
+	 */
+	private void loadFile(String filename) throws ParserConfigurationException, SAXException, IOException {
+		//With help from http://docs.oracle.com/javase/tutorial/jaxp/dom/readingXML.html
+		
+		//Initial checks:
+		//-- filename cannot be null
+		if(filename == null) {
+			throw new NullPointerException("Path to file is null");
+		}
+		//-- file must exist
+		File file = new File(filename);
+		if(!file.exists()) {
+			throw new IllegalArgumentException("Specified file " + filename + " does not exist");
+		}
+		
+		//Obtain an instance of a factory that can give us a document builder
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		
+		//Get an instance of a builder, and use it to parse the desired file
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		doc = builder.parse(file);
+	
+	}
+
 	@Override
 	public void saveData(String filename) throws IOException {
 		// Written with the help of the tutorial found at http://www.roseindia.net/xml/dom/
@@ -141,6 +177,62 @@ public class DataUtilXmlImpl implements DataUtil {
 				throw new IOException("Problem writing to file: " + filename, e);
 		}	
 	}
+	
+	/**
+	 * Extracts the contact data from the DOM document and uses it to create Contact
+	 * objects in memory.
+	 */
+	private void extractContacts() {
+		//Clear the ID-Contact map (useful when we come to extract meeting data)
+		contactIdMap.clear();
+		
+		//Get hold of the element containing contact data -- tag is "Contacts"
+		Node contactsRoot = doc.getElementsByTagName("Contacts").item(0);
+		
+		//Contact data is stored in the children of contactsRoot, so for(each of these children...)
+		for(Node contactNode = contactsRoot.getFirstChild(); contactNode != null; contactNode.getNextSibling()) {
+			
+			//Contact IDs are stored as the element's attribute
+			int id = getIdAttribute(contactNode);
+			
+			//Retrieve the name and notes of this contact
+			String name = getData(contactNode, "name");
+			String notes = getData(contactNode, "notes");
+			
+			//Add a new contact to list of known contacts using this data,
+			//and add to the ID map
+			Contact contact = new ContactImpl(id, name, notes);
+			knownContacts.add(contact);
+			contactIdMap.put(id, contact);
+		}
+	}
+	
+	/**
+	 * Extracts the data stored under the given node with the given tag; e.g., for a contact
+	 * node <contact><name>Alice</name></contact>, the tag "name" would return the string "Alice".
+	 * 
+	 * @param node the node to extract data from
+	 * @param tag the identifying tag of the desired data
+	 * @return the data stored under the given node and tag
+	 */
+	private String getData(Node node, String tag) {
+		Node dataNode = ((Element) node).getElementsByTagName(tag).item(0);
+		return dataNode.getTextContent();
+	}
+
+
+	/**
+	 * Returns the integer value of the attribute of the given node, representing the ID of 
+	 * object; e.g. if the given node reads <contact id="3"></contact>, getAttribute would
+	 * return the integer value of the string "3".
+	 * 
+	 * @param node the node to extract the attribute value from
+	 * @return the value of the given node's attribute
+	 */
+	private int getIdAttribute(Node node) {
+		return Integer.parseInt(node.getAttributes().getNamedItem("id").getNodeValue());
+	}
+
 
 	/**
 	 * Creates an empty DOM Document (pointed to by private field doc).
