@@ -3,17 +3,15 @@ package util;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.text.DefaultEditorKit.PasteAction;
-
 import main.*;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,7 +21,8 @@ public class DataUtilXmlImplTest {
 	private Set<Contact> contacts;
 	private List<PastMeeting> pastmeetings;
 	private List<FutureMeeting> futuremeetings;
-	private Contact alice, bob;
+	private Contact alice;
+	private Contact bob;
 	private PastMeeting p1, p2;
 	private FutureMeeting f1, f2;
 	private Calendar past1, past2, future1, future2;
@@ -31,10 +30,10 @@ public class DataUtilXmlImplTest {
 	@Before
 	public void buildUp() {
 		data = new DataUtilXmlImpl();
-		filename = "." + File.separator + "test_file.txt";
+		filename = "." + File.separator + "data_util_test_file.txt";
 		
 		alice = new ContactImpl(1, "Alice");
-		bob = new ContactImpl(2, "Bob");
+		bob = new ContactImpl(2, "Bob", "Bob has notes");
 		contacts = new HashSet<Contact>();
 		contacts.add(alice);
 		contacts.add(bob);
@@ -65,10 +64,6 @@ public class DataUtilXmlImplTest {
         futuremeetings.add(f1);
         futuremeetings.add(f2);
     }
-
-	@After
-	public void cleanUp() {
-	}
 
 	@Test
 	public void testsAddAndGetContacts() {
@@ -113,27 +108,50 @@ public class DataUtilXmlImplTest {
 	}
 	
 	@Test
-	public void testsLoadFile() {
-		fail("Not yet implemented");
+	public void testsSaveAndLoadData() throws Exception {
+		//Add data
+		data.addContacts(contacts);
+		data.addFutureMeetings(futuremeetings);
+		data.addPastMeetings(pastmeetings);
+		//Save
+		data.saveData(filename);
+		//Load
+		data.loadData(filename);
 	}
 	
 	@Test
-	public void testsWriteFile() {
-		fail("Not yet implemented");
+	public void testsExtractContacts() throws Exception {
+		//Ensure testsSaveAndLoadData() is carried out first so we have a file to load from
+		testsSaveAndLoadData();
+		
+		//Retrieve the reloaded contacts
+		Set<Contact> extractedContacts = data.getContacts();
+		
+		assertTrue(extractedContacts.containsAll(contacts));
+		assertEquals(contacts, extractedContacts);
 	}
 	
 	@Test
-	public void testsGetContacts() {
-		fail("Not yet implemented");
+	public void testsExtractPastMeetings() throws Exception {
+		//Ensure testsSaveAndLoadData() is carried out first so we have a file to load from
+		testsSaveAndLoadData();
+		
+		//Retrieve the reloaded past meetings
+		List<PastMeeting> extractedMeetings = data.getPastMeetings();
+		
+		assertTrue(extractedMeetings.containsAll(pastmeetings));
+		assertEquals(pastmeetings, extractedMeetings);
 	}
 	
 	@Test
-	public void testsGetPastMeetings() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testsGetFutureMeetings() {
-		fail("Not yet implemented");
+	public void testsExtractFutureMeetings() throws Exception {
+		//Ensure testsSaveAndLoadData() is carried out first so we have a file to load from
+		testsSaveAndLoadData();
+		
+		//Retrieve the reloaded future meetings
+		List<FutureMeeting> extractedMeetings = data.getFutureMeetings();
+		
+		assertTrue(extractedMeetings.containsAll(futuremeetings));
+		assertEquals(futuremeetings, extractedMeetings);
 	}
 }

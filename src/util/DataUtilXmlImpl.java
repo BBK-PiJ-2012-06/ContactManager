@@ -25,7 +25,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import main.Contact;
@@ -196,18 +195,25 @@ public class DataUtilXmlImpl implements DataUtil {
 		//Contact data is stored in the children of contactsRoot, so for(each of these children...)
 		for(Node contactNode = contactsRoot.getFirstChild(); contactNode != null; contactNode.getNextSibling()) {
 			
-			//Contact IDs are stored as the element's attribute
-			int id = getIdAttr(contactNode);
-			
-			//Retrieve the name and notes of this contact
-			String name = getData(contactNode, "name");
-			String notes = getData(contactNode, "notes");
-			
-			//Add a new contact to list of known contacts using this data,
-			//and add to the ID map
-			Contact contact = new ContactImpl(id, name, notes);
-			knownContacts.add(contact);
-			contactIdMap.put(id, contact);
+			// Necessary to ensure we are dealing with an element type node 
+			// -- there are apparently hidden text nodes to help make the xml readable I think
+			// -- hints from http://www.coderanch.com/t/446204/Web-Services/java/Node-Element-conversion
+			// -- and http://coding.derkeiler.com/Archive/Java/comp.lang.java.help/2007-06/msg00494.html
+			if(contactNode.getNodeType() == Node.ELEMENT_NODE) { 
+				
+				//Contact IDs are stored as the element's attribute
+				int id = getIdAttr(contactNode);
+				
+				//Retrieve the name and notes of this contact
+				String name = getData(contactNode, "name");
+				String notes = getData(contactNode, "notes");
+				
+				//Add a new contact to list of known contacts using this data,
+				//and add to the ID map
+				Contact contact = new ContactImpl(id, name, notes);
+				knownContacts.add(contact);
+				contactIdMap.put(id, contact);
+			}
 		}
 	}
 	
@@ -222,20 +228,22 @@ public class DataUtilXmlImpl implements DataUtil {
 		//PastMeeting data is stored in the children of meetingsRoot, so for(each of these children...)
 		for(Node meetingNode = meetingsRoot.getFirstChild(); meetingNode != null; meetingNode.getNextSibling()) {
 			
-			//Meeting IDs are stored as the element's attribute
-			int id = getIdAttr(meetingNode);
-			
-			//Retrieve the date and parse using CalendarUtil
-			Calendar date = CalendarUtil.parse(getData(meetingNode, "date"));
-			
-			//Retrieve participating contacts
-			Set<Contact> contacts = getContactsFromMeeting(meetingNode);
-			
-			//Retrieve the notes
-			String notes = getData(meetingNode, "notes");
-			
-			//Add a new meeting to list using this data
-			pastMeetings.add(new PastMeetingImpl(id, contacts, date, notes));
+			if(meetingNode.getNodeType() == Node.ELEMENT_NODE) {
+				//Meeting IDs are stored as the element's attribute
+				int id = getIdAttr(meetingNode);
+				
+				//Retrieve the date and parse using CalendarUtil
+				Calendar date = CalendarUtil.parse(getData(meetingNode, "date"));
+				
+				//Retrieve participating contacts
+				Set<Contact> contacts = getContactsFromMeeting(meetingNode);
+				
+				//Retrieve the notes
+				String notes = getData(meetingNode, "notes");
+				
+				//Add a new meeting to list using this data
+				pastMeetings.add(new PastMeetingImpl(id, contacts, date, notes));
+			}
 		}
 	}
 
@@ -250,17 +258,19 @@ public class DataUtilXmlImpl implements DataUtil {
 		//FutureMeeting data is stored in the children of meetingsRoot, so for(each of these children...)
 		for(Node meetingNode = meetingsRoot.getFirstChild(); meetingNode != null; meetingNode.getNextSibling()) {
 			
-			//Meeting IDs are stored as the element's attribute
-			int id = getIdAttr(meetingNode);
-			
-			//Retrieve the date and parse using CalendarUtil
-			Calendar date = CalendarUtil.parse(getData(meetingNode, "date"));
-			
-			//Retrieve participating contacts
-			Set<Contact> contacts = getContactsFromMeeting(meetingNode);
-			
-			//Add a new meeting to list using this data
-			futureMeetings.add(new FutureMeetingImpl(id, contacts, date));
+			if(meetingNode.getNodeType() == Node.ELEMENT_NODE) {
+				//Meeting IDs are stored as the element's attribute
+				int id = getIdAttr(meetingNode);
+				
+				//Retrieve the date and parse using CalendarUtil
+				Calendar date = CalendarUtil.parse(getData(meetingNode, "date"));
+				
+				//Retrieve participating contacts
+				Set<Contact> contacts = getContactsFromMeeting(meetingNode);
+				
+				//Add a new meeting to list using this data
+				futureMeetings.add(new FutureMeetingImpl(id, contacts, date));
+			}
 		}
 	}
 
@@ -303,13 +313,14 @@ public class DataUtilXmlImpl implements DataUtil {
 		
 		//Iterate through the contactNodeList using siblings of the first child node
 		for(Node contactNode = contactsNode.getFirstChild(); contactNode != null; contactNode.getNextSibling()) {
-			//Get the contact's ID from the node attribute
-			int id = getIdAttr(contactNode);
-			
-			//Fetch this contact from the ID->Contact map and add to the set to return
-			contactsAtMeeting.add(contactIdMap.get(id));
+			if(contactNode.getNodeType() == Node.ELEMENT_NODE) {
+				//Get the contact's ID from the node attribute
+				int id = getIdAttr(contactNode);
+				
+				//Fetch this contact from the ID->Contact map and add to the set to return
+				contactsAtMeeting.add(contactIdMap.get(id));	
+			}
 		}
-			
 		return contactsAtMeeting;
 	}
 

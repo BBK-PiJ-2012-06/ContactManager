@@ -40,33 +40,33 @@ public class CalendarUtil {
 	}
 
 	/**
-	 * Formats the given date to a simple string of the form "dd/MM/yy HH:mm"
+	 * Formats the given date to a simple string of the form "dd/MM/yyyy HH:mm"
 	 * (see SimpleDateFormat for pattern letter definitions)
 	 * 
 	 * @param date the date to be formatted
 	 * @return a string representation of the given date
 	 **/
 	public static String format(Calendar date) {
-		SimpleDateFormat simpleFormat = new SimpleDateFormat("dd/MM/yy HH:mm");
+		SimpleDateFormat simpleFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 		return simpleFormat.format(date.getTime());
 	}
 	
 	/**
-	 * Parses the given formatted calendar string of the form "dd/MM/yy HH:mm"
+	 * Parses the given formatted calendar string of the form "dd/MM/yyyy HH:mm"
 	 * (see SimpleDateFormat for pattern letter definitions)
 	 * 
 	 * @param dateStr the string to be parsed
 	 * @return the Calendar represented by the given string
 	 */
 	public static Calendar parse(String dateStr) {
-		SimpleDateFormat simpleFormat = new SimpleDateFormat("dd/MM/yy HH:mm");
+		SimpleDateFormat simpleFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 		Calendar date = Calendar.getInstance();
 		
 		try {
 			date.setTime(simpleFormat.parse(dateStr));
 		} catch (ParseException e) {
 			System.out.println("Could not parse date string: " + dateStr);
-			System.out.println("format is dd/MM/yy HH:mm");
+			System.out.println("format is dd/MM/yyyy HH:mm");
 			e.printStackTrace();
 		}
 		return date;
