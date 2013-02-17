@@ -1,84 +1,145 @@
 package main;
 
 import java.util.*;
+import java.util.concurrent.Future;
+import java.io.File;
+import java.io.IOException;
 import java.lang.Exception;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
 import util.CalendarUtil;
+import util.DataManager;
+import util.DataManagerImpl;
 
 /**
  * A class to manage your contacts and meetings.
  **/
 public class ContactManagerImpl implements ContactManager {
+	private final String DATA_FILE = "contacts.txt";
+	private DataManager data = new DataManagerImpl();
 	private int next_contact_id = 0;
 	private int next_meeting_id = 0;
-	private Map<Integer, Contact> known_contacts = new HashMap<Integer, Contact>();
-	private Map<Integer, Meeting> meetings = new HashMap<Integer, Meeting>();
-
-	public ContactManagerImpl(/* params? */) {
-		// This is where we recover previous session info from file
+	private Set<Contact> knownContacts = new HashSet<Contact>();
+	private List<PastMeeting> pastMeetings = new LinkedList<PastMeeting>();
+	private List<FutureMeeting> futureMeetings = new LinkedList<FutureMeeting>();
+	private Map<Integer, Contact> contactIds = new HashMap<Integer, Contact>();
+	private Map<Integer, PastMeeting> pastMeetingIds = new HashMap<Integer, PastMeeting>();
+	private Map<Integer, FutureMeeting> futureMeetingIds = new HashMap<Integer, FutureMeeting>();
+	
+	/**
+	 * Creates a ContactManager using data from previous sessions stored in the local file
+	 * "contacts.txt". If no such file exists an empty ContactManager will be created.
+	 */
+	public ContactManagerImpl() {
+		// Recover previous session info from file if it exists
+		if(new File(DATA_FILE).isFile()) {
+			try {
+				// Load and retrieve the stored contacts and meetings
+				data.loadData(DATA_FILE);
+				knownContacts = data.getContacts();
+				pastMeetings = data.getPastMeetings();
+				futureMeetings = data.getFutureMeetings();
+				
+				// Use this data to populate ID maps
+				populateMaps();
+			} catch (IOException e) {
+				System.out.println(DATA_FILE + " could not be read");
+				e.printStackTrace();
+			} catch (ParserConfigurationException e) {
+				e.printStackTrace();
+			} catch (SAXException e) {
+				System.out.println("Could not parse XML in " + DATA_FILE);
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
-	 * Checks that each of the given contacts is in the set of known contacts.
-	 * 
-	 * @param contacts
-	 *            the set of contacts to check
-	 * @return whether all the given contacts are known
-	 **/
-	private boolean contactsAreKnown(Set<Contact> contacts) {
-		for (Contact next : contacts) {
-			if (!known_contacts.containsKey(next.getID())) {
-				return false;
-			}
+	 * Populates the mappings from ID to contacts, past meetings and future meetings.
+	 */
+	private void populateMaps() {
+		// Contacts
+		for(Contact contact : knownContacts) {
+			contactIds.put(contact.getID(), contact);
 		}
-		return true;
+		// Past meetings
+		for(PastMeeting meeting : pastMeetings) {
+			pastMeetingIds.put(meeting.getID(), meeting);
+		}
+		// Future meetings
+		for(FutureMeeting meeting : futureMeetings) {
+			futureMeetingIds.put(meeting.getID(), meeting);
+		}
 	}
 
 	/**
 	 * Add a new meeting to be held in the future.
 	 * 
-	 * @param contacts
-	 *            a list of contacts that will participate in the meeting
-	 * @param date
-	 *            the date on which the meeting will take place
+	 * @param contacts a list of contacts that will participate in the meeting
+	 * @param date the date on which the meeting will take place
 	 * @return the ID for the meeting
-	 * @throws IllegalArgumentException
-	 *             if the meeting is set for a time in the past, or if any
-	 *             contact is unknown / non-existent
+	 * @throws IllegalArgumentException if the meeting is set for a time in the past, or if any
+	 * 	contact is unknown / non-existent
 	 **/
 	@Override
 	public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
 		// Check that the given date is in the future
 		if (!CalendarUtil.isInFuture(date)) {
-			throw new IllegalArgumentException("Given date, "
-					+ CalendarUtil.format(date) + ", is not in the future");
+			throw new IllegalArgumentException("Given date, " + CalendarUtil.format(date) + ", is not in the future");
 		}
 
-		// Check that each contact is known
-		if (!contactsAreKnown(contacts)) {
-			throw new IllegalArgumentException(
-					"Given set of contacts contains an unknown contact");
+		// Make sure each contact is known
+		try {
+			checkContactsAreKnown(contacts);
+		} catch(NullPointerException e) {
+			throw new IllegalArgumentException("Given contacts contains null contact");
+		} catch(IllegalArgumentException e) {
+			throw new IllegalArgumentException("Given contacts contains unknown contact");
 		}
-
-		// If we've made it this far, add the meeting
+		
+		// All is well, add the meeting
 		int id = next_meeting_id++;
-		meetings.put(id, new MeetingImpl(id, contacts, date));
+		FutureMeeting newMeeting = new FutureMeetingImpl(id, contacts, date);
+		futureMeetings.add(newMeeting);
+		futureMeetingIds.put(id, newMeeting);
+		
+		return id;
+	}
+
+	/**
+	 * Checks that no contacts in the given set are either null or unknown.
+	 * 
+	 * @param contacts the set of contacts to check
+	 * @throws NullPointerException if any contact is null
+	 * @throws IllegalArgumentException if any contact is unknown
+	 */
+	private void checkContactsAreKnown(Set<Contact> contacts) {
+		for(Contact contact : contacts) {
+			if(contact == null) {
+				throw new NullPointerException();
+			}
+			if(!contactIds.containsKey(contact.getID())) {
+				throw new IllegalArgumentException();
+			}
+		}
 	}
 
 	/**
 	 * Returns the PAST meeting with the requested ID, or null if there is none.
 	 * 
-	 * @param id
-	 *            the ID for the meeting
+	 * @param id the ID for the meeting
 	 * @return the meeting with the requested ID, or null if there is none
-	 * @throws IllegalArgumentException
-	 *             if there is a meeting with that ID happening in the future
+	 * @throws IllegalArgumentException if there is a meeting with that ID happening in the future
 	 **/
 	@Override
 	public PastMeeting getPastMeeting(int id) {
+		/////////////////----CONTINUE HERE!-----///////////////////////
 		// Get the meeting with this id (if no mapping for id, returns null,
 		// which is the desired behaviour in this case)
-		Meeting requestedMeeting = meetings.get(id);
+		PastMeeting requestedMeeting = meetings.get(id);
 
 		// Check date is in past if not null
 		if (requestedMeeting == null) {
