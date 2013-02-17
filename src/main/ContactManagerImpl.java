@@ -325,15 +325,17 @@ public class ContactManagerImpl implements ContactManager {
 	private void createPastMeeting(Set<Contact> contacts, Calendar date, String text) {
 		// Get an ID
 		int id = next_meeting_id++;
+		
 		// Initialise
 		PastMeeting newMeeting = new PastMeetingImpl(id, contacts, date, text);
+		
 		// Add to collections
 		pastMeetings.add(newMeeting);
 		pastMeetingIds.put(id, newMeeting);
+		meetingDates.get(CalendarUtil.trimTime(date)).add(newMeeting);
 		for(Contact contact : contacts) {
 			pastMeetingContacts.get(contact).add(newMeeting);
 		}
-		meetingDates.get(CalendarUtil.trimTime(date)).add(newMeeting);
 	}
 
 	/**
@@ -344,19 +346,59 @@ public class ContactManagerImpl implements ContactManager {
 	 * 
 	 * It can also be used to add notes to a past meeting at a later date.
 	 * 
-	 * @param id
-	 *            the ID of the meeting
-	 * @param test
-	 *            messages to be added about the meeting
-	 * @throws IllegalArgumentException
-	 *             if the meeting does not exist
-	 * @throws IllegalStateException
-	 *             if the meeting is set for a date in the future
-	 * @throws NullPointerException
-	 *             if the notes are null
+	 * @param id the ID of the meeting
+	 * @param text messages to be added about the meeting
+	 * @throws IllegalArgumentException if the meeting does not exist
+	 * @throws IllegalStateException if the meeting is set for a date in the future
+	 * @throws NullPointerException if the notes are null
 	 **/
 	@Override
-	void addMeetingNotes(int id, String text);
+	public void addMeetingNotes(int id, String text) {
+		// Check notes not null
+		if(text == null) {
+			throw new NullPointerException("Notes are null");
+		}
+		
+		// Determine if meeting is in past or future
+		if(pastMeetingIds.containsKey(id)) {
+			// As meeting is already in past, no need to check date
+			// Can append to the meeting's notes using PastMeetingImpl method addNotes(String)
+			((PastMeetingImpl) pastMeetingIds.get(id)).addNotes(text);
+			
+		} else if(futureMeetingIds.containsKey(id)) {
+			// Ensure this meeting has occurred
+			Meeting meeting = futureMeetingIds.remove(id);
+			if(!CalendarUtil.isInPast(meeting.getDate())) {
+				throw new IllegalStateException("Meeting with ID = " + id + " is a future meeting");
+			}
+			
+			// As meeting has occurred, remove it from collections
+			futureMeetings.remove(meeting);
+			for(Contact contact : meeting.getContacts()) {
+				futureMeetingContacts.get(contact).remove(meeting);
+			}
+			meetingDates.get(CalendarUtil.trimTime(meeting.getDate())).remove(meeting);
+			
+			// Initialise a new past meeting 
+			PastMeeting pastMeeting = new PastMeetingImpl(meeting, text);
+			
+			// Add to collections
+			pastMeetings.add(pastMeeting);
+			pastMeetingIds.put(id, pastMeeting);
+			meetingDates.get(CalendarUtil.trimTime(pastMeeting.getDate())).add(pastMeeting);
+			
+			for(Contact contact : pastMeeting.getContacts()) {
+				Set<PastMeeting> meetingsAttended = pastMeetingContacts.get(contact); 
+				// May be no meetings attended (this meeting may have been the first attended by this contact)
+				if(meetingsAttended == null) {
+					meetingsAttended = new TreeSet<PastMeeting>(CalendarUtil.getMeetingComparator());
+				}
+				meetingsAttended.add(pastMeeting);
+			}
+		} else {
+			throw new IllegalArgumentException("Meeting with ID = " + id + " does not exist");
+		}
+	}
 
 	/**
 	 * Create a new contact with the specified name and notes.

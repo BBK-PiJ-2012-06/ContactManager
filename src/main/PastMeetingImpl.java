@@ -17,12 +17,9 @@ public class PastMeetingImpl extends MeetingImpl implements PastMeeting {
 	 * Constructs a new PastMeetingImpl with the given set of contacts, date and
 	 * notes about what occurred during the meeting.
 	 * 
-	 * @param contacts
-	 *            the set of contacts attending the meeting
-	 * @param date
-	 *            the date on which the meeting is to take place
-	 * @param notes
-	 *            the notes to be added
+	 * @param contacts the set of contacts attending the meeting
+	 * @param date the date on which the meeting is to take place
+	 * @param notes the notes to be added
 	 **/
 	public PastMeetingImpl(int id, Set<Contact> contacts, Calendar date,
 			String notes) {
@@ -34,10 +31,8 @@ public class PastMeetingImpl extends MeetingImpl implements PastMeeting {
 	 * Constructs a PastMeetingImpl from an existing MeetingImpl with additional
 	 * notes about what occurred during the meeting.
 	 * 
-	 * @param meeting
-	 *            the meeting that has taken place
-	 * @param notes
-	 *            the notes to be added
+	 * @param meeting the meeting that has taken place
+	 * @param notes the notes to be added
 	 **/
 	public PastMeetingImpl(Meeting meeting, String notes) {
 		super(meeting.getID(), meeting.getContacts(), meeting.getDate());
@@ -56,6 +51,19 @@ public class PastMeetingImpl extends MeetingImpl implements PastMeeting {
 		return notes;
 	}
 
+	/**
+	 * Add notes about the meeting.
+	 * 
+	 * @param note the notes to be added
+	 **/
+	public void addNotes(String note) {
+		if (notes.isEmpty()) {
+			notes += note;
+		} else {
+			this.notes += '\n' + note;
+		}
+	}
+	
 	@Override
 	// see http://www.artima.com/lejava/articles/equality.html
 	public boolean equals(Object other) {

@@ -6,7 +6,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import main.Meeting;
-import main.PastMeeting;
 
 /**
  * A class to handle some common Calendar checking/manipulating methods.

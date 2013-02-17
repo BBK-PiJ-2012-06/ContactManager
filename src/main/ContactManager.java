@@ -106,7 +106,7 @@ public interface ContactManager {
 	 * It can also be used to add notes to a past meeting at a later date.
 	 * 
 	 * @param id the ID of the meeting
-	 * @param test messages to be added about the meeting
+	 * @param text messages to be added about the meeting
 	 * @throws IllegalArgumentException if the meeting does not exist
 	 * @throws IllegalStateException if the meeting is set for a date in the future
 	 * @throws NullPointerException if the notes are null
