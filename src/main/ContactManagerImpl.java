@@ -147,17 +147,23 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
 	/**
-	 * Returns the FUTURE meeting with the requested ID, or null if there is
-	 * none.
+	 * Returns the FUTURE meeting with the requested ID, or null if there is none.
 	 * 
-	 * @param id
-	 *            the ID for the meeting
+	 * @param id the ID for the meeting
 	 * @return the meeting with the requested ID, or null if there is none
-	 * @throws IllegalArgumentException
-	 *             if there is a meeting with that ID happening in the past
+	 * @throws IllegalArgumentException if there is a meeting with that ID happening in the past
 	 **/
 	@Override
-	FutureMeeting getFutureMeeting(int id);
+	public FutureMeeting getFutureMeeting(int id) {
+		// Check that the ID isn't that of a past meeting
+		if(pastMeetingIds.containsKey(id)) {
+			throw new IllegalArgumentException("Requested ID, " + id + ", belongs to a past meeting");
+		}
+
+		// Fetch the meeting with this id (if no mapping for id get(id) returns null)
+		FutureMeeting requestedMeeting = futureMeetingIds.get(id);
+		return requestedMeeting;
+	}
 
 	/**
 	 * Returns the meeting with the requested ID, or null if there is none.
