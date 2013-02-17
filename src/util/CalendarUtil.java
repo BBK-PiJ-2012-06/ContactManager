@@ -96,4 +96,19 @@ public class CalendarUtil {
 			}
 		};
 	}
+
+	/**
+	 * Returns a calendar with the same date (day, month, year) as the given calendar, 
+	 * with all time of day fields set to zero (midnight).
+	 * 
+	 * @param date the date to trim the time from
+	 * @return a calendar set to midnight on the same date as the given calendar
+	 */
+	public static Calendar trimTime(Calendar date) {
+		date.set(Calendar.HOUR_OF_DAY, 0);
+		date.set(Calendar.MINUTE, 0);
+		date.set(Calendar.SECOND, 0);
+		date.set(Calendar.MILLISECOND, 0);
+		return date;
+	}
 }

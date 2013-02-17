@@ -30,6 +30,7 @@ public class ContactManagerImpl implements ContactManager {
 	private Map<Integer, FutureMeeting> futureMeetingIds = new HashMap<Integer, FutureMeeting>();
 	private Map<Contact, Set<PastMeeting>> pastMeetingContacts = new HashMap<Contact, Set<PastMeeting>>();
 	private Map<Contact, Set<FutureMeeting>> futureMeetingContacts = new HashMap<Contact, Set<FutureMeeting>>();
+	private Map<Calendar, Set<Meeting>> meetingDates = new HashMap<Calendar, Set<Meeting>>();
 	
 	/**
 	 * Creates a ContactManager using data from previous sessions stored in the local file
@@ -79,6 +80,8 @@ public class ContactManagerImpl implements ContactManager {
 			for(Contact attendee : meeting.getContacts()) {
 				pastMeetingContacts.get(attendee).add(meeting);
 			}
+			// Initialise the set of meetings that occurred on this date
+			meetingDates.put(CalendarUtil.trimTime(meeting.getDate()), new TreeSet<Meeting>(CalendarUtil.getMeetingComparator()));
 		}
 		// Future meetings
 		for(FutureMeeting meeting : futureMeetings) {
@@ -109,7 +112,7 @@ public class ContactManagerImpl implements ContactManager {
 		try {
 			checkContactsAreKnown(contacts);
 		} catch(NullPointerException e) {
-			throw new IllegalArgumentException("Given contacts contains null contact");
+			throw new NullPointerException("Given contacts contains null contact");
 		} catch(IllegalArgumentException e) {
 			throw new IllegalArgumentException("Given contacts contains unknown contact");
 		}
@@ -206,7 +209,7 @@ public class ContactManagerImpl implements ContactManager {
 	 * @throws IllegalArgumentException if the contact does not exist
 	 **/
 	@Override
-	public List<FutureMeeting> getFutureMeetingList(Contact contact) {
+	public List<Meeting> getFutureMeetingList(Contact contact) {
 		// Check that this contact is known and not null
 		if(contact == null) {
 			throw new IllegalArgumentException("Given contact is null");
@@ -218,22 +221,34 @@ public class ContactManagerImpl implements ContactManager {
 		// Fetch the set of future meetings this contact is attending
 		// (tree set has taken care of chronological ordering)
 		// (may be empty)
-		return new LinkedList<FutureMeeting>(futureMeetingContacts.get(contact));
+		return new LinkedList<Meeting>(futureMeetingContacts.get(contact));
 	}
 
 	/**
 	 * Returns the list of meetings that are scheduled for, or that took place
-	 * on, the specified date
+	 * on, the specified date (ignoring the time).
+	 * NB, although the name of this method is misleading, it will not be changed
+	 * as this would violate the method's contract.
 	 * 
 	 * If there are none, the returned list will be empty. Otherwise, the list
 	 * will be chronologically sorted and will not contain any duplicates.
 	 * 
-	 * @param date
-	 *            the date
+	 * @param date the date
 	 * @return the list of meetings (maybe empty)
 	 **/
 	@Override
-	List<Meeting> getFutureMeetingList(Calendar date);
+	public List<Meeting> getFutureMeetingList(Calendar date) {
+		// Fetch meetings on this date
+		Set<Meeting> requestedMeetings = meetingDates.get(CalendarUtil.trimTime(date));
+		
+		// If no meetings on this date, requestedMeetings is null
+		if(requestedMeetings == null) {
+			// Return empty list
+			return new LinkedList<Meeting>();
+		}
+		
+		return new LinkedList<Meeting>(requestedMeetings);
+	}
 
 	/**
 	 * Returns the list of past meetings in which this contact has participated.
