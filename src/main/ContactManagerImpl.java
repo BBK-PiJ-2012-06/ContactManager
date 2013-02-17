@@ -43,7 +43,7 @@ public class ContactManagerImpl implements ContactManager {
 				pastMeetings = data.getPastMeetings();
 				futureMeetings = data.getFutureMeetings();
 				
-				// Use this data to populate ID & contact maps
+				// Use this data to populate ID, contact & meeting maps
 				populateMaps();
 			} catch (IOException e) {
 				System.out.println(DATA_FILE + " could not be read");
@@ -59,7 +59,8 @@ public class ContactManagerImpl implements ContactManager {
 
 	/**
 	 * Populates the mappings from ID to contacts, past meetings and future meetings,
-	 * plus the mappings from contact to meetings attended/contactAttending.  
+	 * plus the mappings from contact to meetings attended/attending, and from date to meetings
+	 * occurred/occurring on that date. 
 	 */
 	private void populateMaps() {
 		// Contacts
@@ -89,15 +90,6 @@ public class ContactManagerImpl implements ContactManager {
 		}
 	}
 
-	/**
-	 * Add a new meeting to be held in the future.
-	 * 
-	 * @param contacts a list of contacts that will participate in the meeting
-	 * @param date the date on which the meeting will take place
-	 * @return the ID for the meeting
-	 * @throws IllegalArgumentException if the meeting is set for a time in the past, or if any
-	 * 	contact is unknown / non-existent
-	 **/
 	@Override
 	public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
 		// Check that the given date is in the future
@@ -141,13 +133,6 @@ public class ContactManagerImpl implements ContactManager {
 		}
 	}
 
-	/**
-	 * Returns the PAST meeting with the requested ID, or null if there is none.
-	 * 
-	 * @param id the ID for the meeting
-	 * @return the meeting with the requested ID, or null if there is none
-	 * @throws IllegalArgumentException if there is a meeting with that ID happening in the future
-	 **/
 	@Override
 	public PastMeeting getPastMeeting(int id) {
 		// Check that the ID isn't that of a future meeting
@@ -160,13 +145,6 @@ public class ContactManagerImpl implements ContactManager {
 		return requestedMeeting;
 	}
 
-	/**
-	 * Returns the FUTURE meeting with the requested ID, or null if there is none.
-	 * 
-	 * @param id the ID for the meeting
-	 * @return the meeting with the requested ID, or null if there is none
-	 * @throws IllegalArgumentException if there is a meeting with that ID happening in the past
-	 **/
 	@Override
 	public FutureMeeting getFutureMeeting(int id) {
 		// Check that the ID isn't that of a past meeting
@@ -179,12 +157,6 @@ public class ContactManagerImpl implements ContactManager {
 		return requestedMeeting;
 	}
 
-	/**
-	 * Returns the meeting with the requested ID, or null if there is none.
-	 * 
-	 * @param id the ID for the meeting
-	 * @return the meeting with the requested ID, or null if there is none
-	 **/
 	@Override
 	public Meeting getMeeting(int id) {
 		Meeting requestedMeeting = pastMeetingIds.get(id);
@@ -195,16 +167,6 @@ public class ContactManagerImpl implements ContactManager {
 		return requestedMeeting; 
 	}
 
-	/**
-	 * Returns the list of future meetings scheduled with this contact.
-	 * 
-	 * If there are none, the returned list will be empty. Otherwise, the list
-	 * will be chronologically sorted and will not contain any duplicates.
-	 * 
-	 * @param contact one of the user's contacts
-	 * @return the list of future meeting(s) scheduled with this contact (maybe empty)
-	 * @throws IllegalArgumentException if the contact does not exist
-	 **/
 	@Override
 	public List<Meeting> getFutureMeetingList(Contact contact) {
 		// Check that this contact is known and not null
@@ -221,18 +183,6 @@ public class ContactManagerImpl implements ContactManager {
 		return new LinkedList<Meeting>(contactAttending.get(contact));
 	}
 
-	/**
-	 * Returns the list of meetings that are scheduled for, or that took place
-	 * on, the specified date (ignoring the time).
-	 * NB, although the name of this method is misleading, it will not be changed
-	 * as this would violate the method's contract.
-	 * 
-	 * If there are none, the returned list will be empty. Otherwise, the list
-	 * will be chronologically sorted and will not contain any duplicates.
-	 * 
-	 * @param date the date
-	 * @return the list of meetings (maybe empty)
-	 **/
 	@Override
 	public List<Meeting> getFutureMeetingList(Calendar date) {
 		// Fetch meetings on this date
@@ -247,16 +197,6 @@ public class ContactManagerImpl implements ContactManager {
 		return new LinkedList<Meeting>(requestedMeetings);
 	}
 
-	/**
-	 * Returns the list of past meetings in which this contact has participated.
-	 * 
-	 * If there are none, the returned list will be empty. Otherwise, the list
-	 * will be chronologically sorted and will not contain any duplicates.
-	 * 
-	 * @param contact one of the user's contacts
-	 * @return the list of past meeting(s) in which this contact participated(maybe empty)
-	 * @throws IllegalArgumentException if the contact does not exist
-	 **/
 	@Override
 	public List<PastMeeting> getPastMeetingList(Contact contact) {
 		// Check that this contact is known and not null
@@ -273,16 +213,6 @@ public class ContactManagerImpl implements ContactManager {
 		return new LinkedList<PastMeeting>(contactAttended.get(contact));		
 	}
 
-	/**
-	 * Create a new record for a meeting that took place in the past.
-	 * 
-	 * @param contacts a list of participants
-	 * @param date the date on which the meeting took place
-	 * @param text messages to be added about the meeting
-	 * @throws IllegalArgumentException if the list of contacts is empty, or any of the 
-	 * 	contacts does not exist
-	 * @throws NullPointerException if any of the arguments is null
-	 **/
 	@Override
 	public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text) {
 		// Ensure arguments are not null
@@ -335,20 +265,6 @@ public class ContactManagerImpl implements ContactManager {
 		}
 	}
 
-	/**
-	 * Add notes to a meeting.
-	 * 
-	 * This method is used when a future meeting takes place, and is then
-	 * converted to a past meeting (with notes).
-	 * 
-	 * It can also be used to add notes to a past meeting at a later date.
-	 * 
-	 * @param id the ID of the meeting
-	 * @param text messages to be added about the meeting
-	 * @throws IllegalArgumentException if the meeting does not exist
-	 * @throws IllegalStateException if the meeting is set for a date in the future
-	 * @throws NullPointerException if the notes are null
-	 **/
 	@Override
 	public void addMeetingNotes(int id, String text) {
 		// Check notes not null
@@ -397,13 +313,6 @@ public class ContactManagerImpl implements ContactManager {
 		}
 	}
 
-	/**
-	 * Create a new contact with the specified name and notes.
-	 * 
-	 * @param name the name of the contact
-	 * @param notes notes to be added about the contact
-	 * @throws NullPointerException if the name or the notes are null
-	 **/
 	@Override
 	public void addNewContact(String name, String notes) {
 		// Check for null arguments
@@ -422,13 +331,6 @@ public class ContactManagerImpl implements ContactManager {
 		knownContacts.add(contact);
 	}
 
-	/**
-	 * Returns a list containing the contacts that correspond to the IDs.
-	 * 
-	 * @param ids an arbitrary number of contact IDs
-	 * @return a list containing the contacts that correspond to the IDs
-	 * @throws IllegalArgumentException if any of the IDs does not correspond to a real contact
-	 **/
 	@Override
 	public Set<Contact> getContacts(int... ids) {
 		Set<Contact> requestedContacts = new HashSet<Contact>();
@@ -443,13 +345,6 @@ public class ContactManagerImpl implements ContactManager {
 		return requestedContacts;
 	}
 
-	/**
-	 * Returns a list with the contacts whose name contains that string.
-	 * 
-	 * @param name the string to search for
-	 * @return a list with the contacts whose name contains that string
-	 * @throws NullPointerException if the parameter is null
-	 **/
 	@Override
 	public Set<Contact> getContacts(String name) {
 		if(name == null) {
@@ -466,12 +361,6 @@ public class ContactManagerImpl implements ContactManager {
 		return matchingContacts;
 	}
 
-	/**
-	 * Saves all data to disk.
-	 * 
-	 * This method must be executed when the program is closed and when/if the
-	 * the user requests it.
-	 **/
 	@Override
 	public void flush() {
 		// Send contacts, past and future meetings to the data manager

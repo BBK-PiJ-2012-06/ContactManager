@@ -29,35 +29,16 @@ public class MeetingImpl implements Meeting {
 		this.id = id;
 	}
 
-	/**
-	 * Returns the ID of the meeting.
-	 * 
-	 * @return the ID of the meeting
-	 **/
 	@Override
 	public int getID() {
 		return id;
 	}
 
-	/**
-	 * Returns the date of the meeting.
-	 * 
-	 * @return the date of the meeting
-	 **/
 	@Override
 	public Calendar getDate() {
 		return date;
 	}
 
-	/**
-	 * Returns the details of people that attended the meeting.
-	 * 
-	 * The list contains a minimum of one contact (if there were just two
-	 * people: the user and the contact) and may contain an arbitrary number of
-	 * them.
-	 * 
-	 * @return the details of people that attended the meeting
-	 **/
 	@Override
 	public Set<Contact> getContacts() {
 		return contacts;
