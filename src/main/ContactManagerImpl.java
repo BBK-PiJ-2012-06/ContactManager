@@ -403,15 +403,27 @@ public class ContactManagerImpl implements ContactManager {
 	/**
 	 * Create a new contact with the specified name and notes.
 	 * 
-	 * @param name
-	 *            the name of the contact
-	 * @param notes
-	 *            notes to be added about the contact
-	 * @throws NullPointerException
-	 *             if the name or the notes are null
+	 * @param name the name of the contact
+	 * @param notes notes to be added about the contact
+	 * @throws NullPointerException if the name or the notes are null
 	 **/
 	@Override
-	void addNewContact(String name, String notes);
+	public void addNewContact(String name, String notes) {
+		// Check for null arguments
+		if(name == null) {
+			throw new NullPointerException("Name is null");
+		}
+		if(notes == null) {
+			throw new NullPointerException("Notes are null");
+		}
+		
+		// Obtain an ID
+		int id = next_contact_id++;
+		
+		// Initialise and add
+		Contact contact = new ContactImpl(id, name, notes);
+		knownContacts.add(contact);
+	}
 
 	/**
 	 * Returns a list containing the contacts that correspond to the IDs.

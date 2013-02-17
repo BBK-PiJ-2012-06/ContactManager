@@ -87,7 +87,9 @@ public class CalendarUtil {
 			@Override
 			public int compare(Meeting o1, Meeting o2) {
 				int diff = o1.getDate().compareTo(o2.getDate());
-				// Ordering must be consistent with equals, check IDs
+				// Ordering must be consistent with equals: 
+				// -- ie., diff should equal 0 iff o1.equals(o2) is true
+				// -- so if o1 and o2 occur at exactly the same time, use IDs to compare
 				if(diff == 0) {
 					return o1.getID() - o2.getID();
 				}
