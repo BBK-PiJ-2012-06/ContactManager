@@ -20,9 +20,12 @@ public class ContactManagerImplTest {
 	
 	private ContactManager cm;
 	private static Calendar past1, past2, future1, future2;
+	private static PastMeeting p1, p2;
+	private static FutureMeeting f1, f2;
 	private static Contact alice, bob, charlie;
 	private static Set<Contact> contacts;
 	private static Set<Contact> unknownContacts;
+	private static Set<Contact> emptyContacts;
 	
 	@BeforeClass
 	public static void onlyOnce() {
@@ -32,12 +35,15 @@ public class ContactManagerImplTest {
         past2 = Calendar.getInstance();
         past2.clear();
         past2.set(1901, Calendar.JANUARY, 1, 00, 00);
+        p1 = new PastMeetingImpl(0, contacts, past1, "");
+        
         future1 = Calendar.getInstance();
         future1.clear();
         future1.set(2100, Calendar.JANUARY, 1, 00, 00);
         future2 = Calendar.getInstance();
         future2.clear();
         future2.set(2101, Calendar.JANUARY, 1, 00, 00);   
+        f1 = new FutureMeetingImpl(1, contacts, future1);
         
         alice = new ContactImpl(0, "Alice");
         bob = new ContactImpl(1, "Bob", "Bob has notes");
@@ -47,6 +53,7 @@ public class ContactManagerImplTest {
         contacts.add(bob);
         unknownContacts = new HashSet<Contact>(contacts);
         unknownContacts.add(charlie);
+        emptyContacts = new HashSet<Contact>();
 	}
 	
 	@Before
@@ -111,14 +118,36 @@ public class ContactManagerImplTest {
 		cm.addFutureMeeting(unknownContacts, future1);
 	}
 
-	/**
-	 * Test method for {@link main.ContactManagerImpl#getPastMeeting(int)}.
-	 */
 	@Test
-	public final void testGetPastMeeting() {
-		fail("Not yet implemented"); // TODO
+	public final void testAddNewPastMeeting() {
+		cm.addNewPastMeeting(contacts, past1, "");
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void testAddNewPastMeetingEmptyContacts() {
+		cm.addNewPastMeeting(emptyContacts, past1, "");
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void testAddNewPastMeetingUnkownContacts() {
+		cm.addNewPastMeeting(unknownContacts, past1, "");
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public final void testAddNewPastMeetingNullArg() {
+		String nullStr = null;
+		cm.addNewPastMeeting(unknownContacts, past1, nullStr);
 	}
 
+	@Test
+	public final void testGetPastMeeting() {
+		cm.getPastMeeting(id)
+	}
+	
+	@Test
+	public void testAddMeetingNotes() {
+		cm.addMeetingNotes(id, text)
+	}
 	/**
 	 * Test method for {@link main.ContactManagerImpl#getFutureMeeting(int)}.
 	 */
@@ -159,21 +188,7 @@ public class ContactManagerImplTest {
 		fail("Not yet implemented"); // TODO
 	}
 
-	/**
-	 * Test method for {@link main.ContactManagerImpl#addNewPastMeeting(java.util.Set, java.util.Calendar, java.lang.String)}.
-	 */
-	@Test
-	public final void testAddNewPastMeeting() {
-		fail("Not yet implemented"); // TODO
-	}
 
-	/**
-	 * Test method for {@link main.ContactManagerImpl#addMeetingNotes(int, java.lang.String)}.
-	 */
-	@Test
-	public final void testAddMeetingNotes() {
-		fail("Not yet implemented"); // TODO
-	}
 
 	/**
 	 * Test method for {@link main.ContactManagerImpl#getContacts(int[])}.
