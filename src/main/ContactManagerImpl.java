@@ -476,5 +476,18 @@ public class ContactManagerImpl implements ContactManager {
 	 * the user requests it.
 	 **/
 	@Override
-	void flush();
+	public void flush() {
+		// Send contacts, past and future meetings to the data manager
+		data.addContacts(knownContacts);
+		data.addPastMeetings(pastMeetings);
+		data.addFutureMeetings(futureMeetings);
+		
+		// Save data to disk
+		try {
+			data.saveData(DATA_FILE);
+		} catch (IOException e) {
+			System.out.println("Could not write to file " + DATA_FILE);
+			e.printStackTrace();
+		}
+	}
 }
