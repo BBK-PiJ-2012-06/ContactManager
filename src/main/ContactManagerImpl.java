@@ -428,26 +428,46 @@ public class ContactManagerImpl implements ContactManager {
 	/**
 	 * Returns a list containing the contacts that correspond to the IDs.
 	 * 
-	 * @param ids
-	 *            an arbitrary number of contact IDs
+	 * @param ids an arbitrary number of contact IDs
 	 * @return a list containing the contacts that correspond to the IDs
-	 * @throws IllegalArgumentException
-	 *             if any of the IDs does not correspond to a real contact
+	 * @throws IllegalArgumentException if any of the IDs does not correspond to a real contact
 	 **/
 	@Override
-	Set<Contact> getContacts(int... ids);
+	public Set<Contact> getContacts(int... ids) {
+		Set<Contact> requestedContacts = new HashSet<Contact>();
+		
+		for(int id : ids) {
+			// Make sure the contact is known
+			if(!contactIds.containsKey(id)) {
+				throw new IllegalArgumentException("A contact with ID = " + id + " does not exist");
+			}
+			requestedContacts.add(contactIds.get(id));
+		}
+		return requestedContacts;
+	}
 
 	/**
 	 * Returns a list with the contacts whose name contains that string.
 	 * 
-	 * @param name
-	 *            the string to search for
+	 * @param name the string to search for
 	 * @return a list with the contacts whose name contains that string
-	 * @throws NullPointerException
-	 *             if the parameter is null
+	 * @throws NullPointerException if the parameter is null
 	 **/
 	@Override
-	Set<Contact> getContacts(String name);
+	public Set<Contact> getContacts(String name) {
+		if(name == null) {
+			throw new NullPointerException("Name is null");
+		}
+		Set<Contact> matchingContacts = new HashSet<Contact>();
+		
+		for(Contact contact : knownContacts) {
+			if(contact.getName().contains(name)) {
+				matchingContacts.add(contact);
+			}
+		}
+		
+		return matchingContacts;
+	}
 
 	/**
 	 * Saves all data to disk.
