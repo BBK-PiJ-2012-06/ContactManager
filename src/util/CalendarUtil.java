@@ -1,8 +1,12 @@
 package util;
 
 import java.util.Calendar;
+import java.util.Comparator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
+import main.Meeting;
+import main.PastMeeting;
 
 /**
  * A class to handle some common Calendar checking/manipulating methods.
@@ -70,5 +74,26 @@ public class CalendarUtil {
 			e.printStackTrace();
 		}
 		return date;
+	}
+
+	/**
+	 * Returns a comparator used to keep sets of meetings sorted chronologically.
+	 * (Written with help from http://java2novice.com/java-collections-and-util/treeset/comparator-object/
+	 * and http://docs.oracle.com/javase/6/docs/api/).
+	 * 
+	 * @return a comparator object for sorting meetings by date
+	 */
+	public static Comparator<Meeting> getMeetingComparator() {
+		return new Comparator<Meeting>() {
+			@Override
+			public int compare(Meeting o1, Meeting o2) {
+				int diff = o1.getDate().compareTo(o2.getDate());
+				// Ordering must be consistent with equals, check IDs
+				if(diff == 0) {
+					return o1.getID() - o2.getID();
+				}
+				return diff;
+			}
+		};
 	}
 }

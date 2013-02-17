@@ -28,6 +28,8 @@ public class ContactManagerImpl implements ContactManager {
 	private Map<Integer, Contact> contactIds = new HashMap<Integer, Contact>();
 	private Map<Integer, PastMeeting> pastMeetingIds = new HashMap<Integer, PastMeeting>();
 	private Map<Integer, FutureMeeting> futureMeetingIds = new HashMap<Integer, FutureMeeting>();
+	private Map<Contact, Set<PastMeeting>> pastMeetingContacts = new HashMap<Contact, Set<PastMeeting>>();
+	private Map<Contact, Set<FutureMeeting>> futureMeetingContacts = new HashMap<Contact, Set<FutureMeeting>>();
 	
 	/**
 	 * Creates a ContactManager using data from previous sessions stored in the local file
@@ -43,7 +45,7 @@ public class ContactManagerImpl implements ContactManager {
 				pastMeetings = data.getPastMeetings();
 				futureMeetings = data.getFutureMeetings();
 				
-				// Use this data to populate ID maps
+				// Use this data to populate ID & contact maps
 				populateMaps();
 			} catch (IOException e) {
 				System.out.println(DATA_FILE + " could not be read");
@@ -58,20 +60,32 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
 	/**
-	 * Populates the mappings from ID to contacts, past meetings and future meetings.
+	 * Populates the mappings from ID to contacts, past meetings and future meetings,
+	 * plus the mappings from contact to meetings attended/attending.  
 	 */
 	private void populateMaps() {
 		// Contacts
 		for(Contact contact : knownContacts) {
 			contactIds.put(contact.getID(), contact);
+			// Initialise the set of past and future meetings attended,
+			// using tree set to keep meetings ordered chronologically
+			// (see http://java2novice.com/java-collections-and-util/treeset/comparator-object/)
+			pastMeetingContacts.put(contact, new TreeSet<PastMeeting>(CalendarUtil.getMeetingComparator()));
+			futureMeetingContacts.put(contact, new TreeSet<FutureMeeting>(CalendarUtil.getMeetingComparator()));
 		}
 		// Past meetings
 		for(PastMeeting meeting : pastMeetings) {
 			pastMeetingIds.put(meeting.getID(), meeting);
+			for(Contact attendee : meeting.getContacts()) {
+				pastMeetingContacts.get(attendee).add(meeting);
+			}
 		}
 		// Future meetings
 		for(FutureMeeting meeting : futureMeetings) {
 			futureMeetingIds.put(meeting.getID(), meeting);
+			for(Contact attendee : meeting.getContacts()) {
+				futureMeetingContacts.get(attendee).add(meeting);
+			}
 		}
 	}
 
@@ -168,12 +182,18 @@ public class ContactManagerImpl implements ContactManager {
 	/**
 	 * Returns the meeting with the requested ID, or null if there is none.
 	 * 
-	 * @param id
-	 *            the ID for the meeting
+	 * @param id the ID for the meeting
 	 * @return the meeting with the requested ID, or null if there is none
 	 **/
 	@Override
-	Meeting getMeeting(int id);
+	public Meeting getMeeting(int id) {
+		Meeting requestedMeeting = pastMeetingIds.get(id);
+		
+		if(requestedMeeting == null) {
+			return (Meeting) futureMeetingIds.get(id);
+		}
+		return requestedMeeting; 
+	}
 
 	/**
 	 * Returns the list of future meetings scheduled with this contact.
@@ -181,15 +201,25 @@ public class ContactManagerImpl implements ContactManager {
 	 * If there are none, the returned list will be empty. Otherwise, the list
 	 * will be chronologically sorted and will not contain any duplicates.
 	 * 
-	 * @param contact
-	 *            one of the user's contacts
-	 * @return the list of future meeting(s) scheduled with this contact (maybe
-	 *         empty)
-	 * @throws IllegalArgumentException
-	 *             if the contact does not exist
+	 * @param contact one of the user's contacts
+	 * @return the list of future meeting(s) scheduled with this contact (maybe empty)
+	 * @throws IllegalArgumentException if the contact does not exist
 	 **/
 	@Override
-	List<FutureMeeting> getFutureMeetingList(Contact contact);
+	public List<FutureMeeting> getFutureMeetingList(Contact contact) {
+		// Check that this contact is known and not null
+		if(contact == null) {
+			throw new IllegalArgumentException("Given contact is null");
+		}
+		if(!knownContacts.contains(contact)) {
+			throw new IllegalArgumentException("Given contact does not exist");
+		}
+		
+		// Fetch the set of future meetings this contact is attending
+		// (tree set has taken care of chronological ordering)
+		// (may be empty)
+		return new LinkedList<FutureMeeting>(futureMeetingContacts.get(contact));
+	}
 
 	/**
 	 * Returns the list of meetings that are scheduled for, or that took place
