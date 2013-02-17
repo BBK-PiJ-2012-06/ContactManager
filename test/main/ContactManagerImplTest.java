@@ -29,6 +29,16 @@ public class ContactManagerImplTest {
 	
 	@BeforeClass
 	public static void onlyOnce() {
+        alice = new ContactImpl(0, "Alice");
+        bob = new ContactImpl(1, "Bob", "Bob has notes");
+        charlie = new ContactImpl(2, "Charlie", "Charlie is unknown");
+        contacts = new HashSet<Contact>();
+        contacts.add(alice);
+        contacts.add(bob);
+        unknownContacts = new HashSet<Contact>(contacts);
+        unknownContacts.add(charlie);
+        emptyContacts = new HashSet<Contact>();
+        
 		past1 = Calendar.getInstance();
         past1.clear();
         past1.set(1900, Calendar.JANUARY, 1, 00, 00);
@@ -44,16 +54,6 @@ public class ContactManagerImplTest {
         future2.clear();
         future2.set(2101, Calendar.JANUARY, 1, 00, 00);   
         f1 = new FutureMeetingImpl(1, contacts, future1);
-        
-        alice = new ContactImpl(0, "Alice");
-        bob = new ContactImpl(1, "Bob", "Bob has notes");
-        charlie = new ContactImpl(2, "Charlie", "Charlie is unknown");
-        contacts = new HashSet<Contact>();
-        contacts.add(alice);
-        contacts.add(bob);
-        unknownContacts = new HashSet<Contact>(contacts);
-        unknownContacts.add(charlie);
-        emptyContacts = new HashSet<Contact>();
 	}
 	
 	@Before
@@ -67,13 +67,13 @@ public class ContactManagerImplTest {
 	}
 
 	@Test
-	public final void testEmptyContactManager() {
+	public void testEmptyContactManager() {
 		assertTrue(cm.getContacts().isEmpty());
 		assertTrue(cm.getContacts("simon").isEmpty());
 	}
 	
 	@Test
-	public final void testAddThenGetNewContact() {		
+	public void testAddThenGetNewContact() {		
 		cm.addNewContact(alice.getName(), alice.getNotes());
 		cm.addNewContact(bob.getName(), bob.getNotes());
 		
@@ -88,13 +88,13 @@ public class ContactManagerImplTest {
 	}
 	
 	@Test(expected = NullPointerException.class)
-	public final void testAddContactNullName() {
+	public void testAddContactNullName() {
 		String nullStr = null;
 		cm.addNewContact(nullStr, alice.getNotes());
 	}
 	
 	@Test(expected = NullPointerException.class)
-	public final void testAddContactNullNotes() {
+	public void testAddContactNullNotes() {
 		String nullStr = null;
 		cm.addNewContact(alice.getName(), nullStr);
 	}
@@ -120,7 +120,7 @@ public class ContactManagerImplTest {
 
 	@Test
 	public final void testAddNewPastMeeting() {
-		cm.addNewPastMeeting(contacts, past1, "");
+		cm.addNewPastMeeting(p1.getContacts(), p1.getDate(), p1.getNotes());
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -141,12 +141,13 @@ public class ContactManagerImplTest {
 
 	@Test
 	public final void testGetPastMeeting() {
-		cm.getPastMeeting(id)
+		assertEquals(p1, cm.getPastMeeting(p1.getID()));
 	}
 	
 	@Test
 	public void testAddMeetingNotes() {
-		cm.addMeetingNotes(id, text)
+		cm.addMeetingNotes(p1.getID(), "Some notes");
+		assertEquals("Some notes", cm.getPastMeeting(p1.getID()));
 	}
 	/**
 	 * Test method for {@link main.ContactManagerImpl#getFutureMeeting(int)}.
