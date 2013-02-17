@@ -212,7 +212,7 @@ public class ContactManagerImpl implements ContactManager {
 	public List<Meeting> getFutureMeetingList(Contact contact) {
 		// Check that this contact is known and not null
 		if(contact == null) {
-			throw new IllegalArgumentException("Given contact is null");
+			throw new NullPointerException("Given contact is null");
 		}
 		if(!knownContacts.contains(contact)) {
 			throw new IllegalArgumentException("Given contact does not exist");
@@ -256,33 +256,40 @@ public class ContactManagerImpl implements ContactManager {
 	 * If there are none, the returned list will be empty. Otherwise, the list
 	 * will be chronologically sorted and will not contain any duplicates.
 	 * 
-	 * @param contact
-	 *            one of the user's contacts
-	 * @return the list of past meeting(s) in which this contact
-	 *         participated(maybe empty)
-	 * @throws IllegalArgumentException
-	 *             if the contact does not exist
+	 * @param contact one of the user's contacts
+	 * @return the list of past meeting(s) in which this contact participated(maybe empty)
+	 * @throws IllegalArgumentException if the contact does not exist
 	 **/
 	@Override
-	List<PastMeeting> getPastMeetingList(Contact contact);
+	public List<PastMeeting> getPastMeetingList(Contact contact) {
+		// Check that this contact is known and not null
+		if(contact == null) {
+			throw new NullPointerException("Given contact is null");
+		}
+		if(!knownContacts.contains(contact)) {
+			throw new IllegalArgumentException("Given contact does not exist");
+		}
+		
+		// Fetch the set of past meetings this contact attended
+		// (tree set has taken care of chronological ordering)
+		// (may be empty)
+		return new LinkedList<PastMeeting>(pastMeetingContacts.get(contact));		
+	}
 
 	/**
 	 * Create a new record for a meeting that took place in the past.
 	 * 
-	 * @param contacts
-	 *            a list of participants
-	 * @param date
-	 *            the date on which the meeting took place
-	 * @param text
-	 *            messages to be added about the meeting
-	 * @throws IllegalArgumentException
-	 *             if the list of contacts is empty, or any of the contacts does
-	 *             not exist
-	 * @throws NullPointerException
-	 *             if any of the arguments is null
+	 * @param contacts a list of participants
+	 * @param date the date on which the meeting took place
+	 * @param text messages to be added about the meeting
+	 * @throws IllegalArgumentException if the list of contacts is empty, or any of the 
+	 * 	contacts does not exist
+	 * @throws NullPointerException if any of the arguments is null
 	 **/
 	@Override
-	void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text);
+	public void addNewPastMeeting(Set<Contact> contacts, Calendar date, String text) {
+		
+	}
 
 	/**
 	 * Add notes to a meeting.
