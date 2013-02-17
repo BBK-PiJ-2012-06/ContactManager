@@ -3,7 +3,6 @@ package util;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,8 +14,8 @@ import main.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DataUtilXmlImplTest {
-	private DataUtil data;
+public class DataManagerImplTest {
+	private DataManager data;
 	private String filename;
 	private Set<Contact> contacts;
 	private List<PastMeeting> pastmeetings;
@@ -29,7 +28,7 @@ public class DataUtilXmlImplTest {
 	
 	@Before
 	public void buildUp() {
-		data = new DataUtilXmlImpl();
+		data = new DataManagerImpl();
 		filename = "." + File.separator + "data_util_test_file.txt";
 		
 		alice = new ContactImpl(1, "Alice");

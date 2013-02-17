@@ -15,7 +15,7 @@ import main.PastMeeting;
 /**
  * A class to handle the file interactions needed by ContactManager.
  **/
-public interface DataUtil {
+public interface DataManager {
 	/**
 	 * Adds the given contacts to the stored data.
 	 * 

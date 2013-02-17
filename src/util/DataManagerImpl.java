@@ -36,11 +36,11 @@ import main.PastMeeting;
 import main.PastMeetingImpl;
 
 /**
- * An implementation of the DataUtil interface.
+ * An implementation of the DataManager interface.
  * 
  * ***********************************************
  **/
-public class DataUtilXmlImpl implements DataUtil {
+public class DataManagerImpl implements DataManager {
 	private Set<Contact> knownContacts = new HashSet<Contact>();
 	private Map<Integer, Contact> contactIdMap = new HashMap<Integer, Contact>(); // Used only when loading data (the contacts associated with a meeting are stored by ID only)
 	private List<FutureMeeting> futureMeetings = new LinkedList<FutureMeeting>();
