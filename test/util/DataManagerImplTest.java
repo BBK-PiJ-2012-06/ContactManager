@@ -153,4 +153,19 @@ public class DataManagerImplTest {
 		assertTrue(extractedMeetings.containsAll(futuremeetings));
 		assertEquals(futuremeetings, extractedMeetings);
 	}
+	
+	@Test
+	public void testsSaveAndLoadEmptyData() throws Exception {
+		//Save an empty data manager
+		data.saveData(filename);
+		
+		//Try to extract empty data structures
+		Set<Contact> emptyContacts = data.getContacts();
+		List<PastMeeting> emptyPastMeetings = data.getPastMeetings();
+		List<FutureMeeting> emptyFutureMeetings = data.getFutureMeetings();
+		
+		assertTrue(emptyContacts.isEmpty());
+		assertTrue(emptyPastMeetings.isEmpty());
+		assertTrue(emptyFutureMeetings.isEmpty());
+	}
 }
