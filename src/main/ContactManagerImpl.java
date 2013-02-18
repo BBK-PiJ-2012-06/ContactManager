@@ -329,6 +329,7 @@ public class ContactManagerImpl implements ContactManager {
 		// Initialise and add
 		Contact contact = new ContactImpl(id, name, notes);
 		knownContacts.add(contact);
+		contactIds.put(id, contact);
 	}
 
 	@Override
