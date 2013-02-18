@@ -101,7 +101,10 @@ public class ContactManagerImpl implements ContactManager {
 			throw new IllegalArgumentException("Given date, " + CalendarUtil.format(date) + ", is not in the future");
 		}
 
-		// Make sure each contact is known
+		// Make sure contacts is not empty and each contact is known
+		if(contacts.isEmpty()) {
+			throw new IllegalArgumentException("Set of contacts is empty");
+		}
 		try {
 			checkContactsAreKnown(contacts);
 		} catch(NullPointerException e) {
@@ -109,7 +112,7 @@ public class ContactManagerImpl implements ContactManager {
 		} catch(IllegalArgumentException e) {
 			throw new IllegalArgumentException("Given contacts contains unknown contact", e);
 		}
-		
+
 		// Obtain an ID
 		int id = nextMeetingId++;
 		FutureMeeting newMeeting = new FutureMeetingImpl(id, contacts, date);
@@ -130,8 +133,19 @@ public class ContactManagerImpl implements ContactManager {
 			}			
 		}
 		
+		// All ok, add to collections
 		futureMeetings.add(newMeeting);
 		futureMeetingIds.put(id, newMeeting);
+		
+		if(!meetingsOnDate.containsKey(CalendarUtil.trimTime(date))) {
+			// Initialise mapping for this date
+			meetingsOnDate.put(CalendarUtil.trimTime(date), new TreeSet<Meeting>(CalendarUtil.getMeetingComparator()));
+		}
+		meetingsOnDate.get(CalendarUtil.trimTime(date)).add(newMeeting);
+		
+		for(Contact contact : contacts) {
+			contactAttending.get(contact).add(newMeeting);
+		}
 		
 		return id;
 	}

@@ -28,7 +28,7 @@ public class ContactManagerImplTest {
 	private static Set<Contact> emptyContacts;
 	
 	@BeforeClass
-	public static void onlyOnce() {
+	public static final void onlyOnce() {
         alice = new ContactImpl(0, "Alice");
         bob = new ContactImpl(1, "Bob", "Bob has notes");
         charlie = new ContactImpl(2, "Charlie", "Charlie is unknown");
@@ -59,14 +59,14 @@ public class ContactManagerImplTest {
 	}
 
 	@Test
-	public void testEmptyContactManager() {
+	public final void testEmptyContactManager() {
 		assertTrue(cm.getContacts().isEmpty());
 		assertTrue(cm.getContacts("simon").isEmpty());
 		assertNull(cm.getFutureMeeting(0));
 	}
 	
 	@Test
-	public void testAddThenGetNewContact() {		
+	public final void testAddThenGetNewContact() {		
 		cm.addNewContact(alice.getName(), alice.getNotes());
 		cm.addNewContact(bob.getName(), bob.getNotes());
 		
@@ -81,13 +81,13 @@ public class ContactManagerImplTest {
 	}
 	
 	@Test(expected = NullPointerException.class)
-	public void testAddContactNullName() {
+	public final void testAddContactNullName() {
 		String nullStr = null;
 		cm.addNewContact(nullStr, alice.getNotes());
 	}
 	
 	@Test(expected = NullPointerException.class)
-	public void testAddContactNullNotes() {
+	public final void testAddContactNullNotes() {
 		String nullStr = null;
 		cm.addNewContact(alice.getName(), nullStr);
 	}
@@ -97,7 +97,7 @@ public class ContactManagerImplTest {
 		int id0 = cm.addFutureMeeting(contacts, future1);
 		assertEquals(0, id0);
 	}
-	
+		
 	@Test(expected = IllegalArgumentException.class)
 	public final void testAddFutureMeetingWithDateInPast() {
 		cm.addFutureMeeting(contacts, past1);
@@ -106,6 +106,12 @@ public class ContactManagerImplTest {
 	@Test(expected = IllegalArgumentException.class)
 	public final void testAddFutureMeetingWithUnknownContact() {
 		cm.addFutureMeeting(unknownContacts, future1);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public final void testAddFutureMeetingWithEmptyContact() {
+		Set<Contact> emptyContacts = new HashSet<Contact>();
+		cm.addFutureMeeting(emptyContacts, future1);
 	}
 
 	@Test
@@ -155,9 +161,6 @@ public class ContactManagerImplTest {
 		assertEquals(p1, cm.getMeeting(1));
 	}
 
-	/**
-	 * Test method for {@link main.ContactManagerImpl#getFutureMeetingList(main.Contact)}.
-	 */
 	@Test
 	public final void testGetFutureMeetingListContact() {
 		fail("Not yet implemented"); // TODO
