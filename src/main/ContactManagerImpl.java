@@ -248,6 +248,7 @@ public class ContactManagerImpl implements ContactManager {
 	 * @param contacts the contacts who attended the meeting
 	 * @param date the date and time the meeting took place
 	 * @param text messages to record about the meeting
+	 * @throws IllegalArgumentException if a past meeting already exists with these contacts on this date
 	 */
 	private void createPastMeeting(Set<Contact> contacts, Calendar date, String text) {
 		// Get an ID
@@ -256,7 +257,21 @@ public class ContactManagerImpl implements ContactManager {
 		// Initialise
 		PastMeeting newMeeting = new PastMeetingImpl(id, contacts, date, text);
 		
-		// Add to collections
+		// Make sure this particular meeting has not already been added
+		Set<Meeting> matchingMeetings = meetingsOnDate.get(CalendarUtil.trimTime(date));
+		
+		// Check all meetings that occurred on the same day as newMeeting
+		for(Meeting matchingMeeting : matchingMeetings) {
+			
+			// If the matchingMeeting occurs at the same time and with the same contacts as the newMeeting
+			if(matchingMeeting.getDate().equals(date) && matchingMeeting.getContacts().equals(contacts)) {
+				// Make id available again
+				nextMeetingId--;
+				throw new IllegalArgumentException("A past meeting already exists on the given date and with the given contacts");
+			}
+		}
+		
+		// newMeeting is OK, add to collections
 		pastMeetings.add(newMeeting);
 		pastMeetingIds.put(id, newMeeting);
 		meetingsOnDate.get(CalendarUtil.trimTime(date)).add(newMeeting);
