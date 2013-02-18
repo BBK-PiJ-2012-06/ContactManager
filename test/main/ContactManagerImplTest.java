@@ -18,7 +18,7 @@ import org.junit.Test;
 
 public class ContactManagerImplTest {
 	
-	private ContactManager cm;
+	private static ContactManager cm;
 	private static Calendar past1, past2, future1, future2;
 	private static PastMeeting p1, p2;
 	private static FutureMeeting f1, f2;
@@ -54,22 +54,15 @@ public class ContactManagerImplTest {
         future2.clear();
         future2.set(2101, Calendar.JANUARY, 1, 00, 00);   
         f1 = new FutureMeetingImpl(1, contacts, future1);
-	}
-	
-	@Before
-	public void setUp() {
-		cm = new ContactManagerImpl();
-	}
-	
-	@After
-	public void tearDown() {
-		cm.flush();
+        
+        cm = new ContactManagerImpl();
 	}
 
 	@Test
 	public void testEmptyContactManager() {
 		assertTrue(cm.getContacts().isEmpty());
 		assertTrue(cm.getContacts("simon").isEmpty());
+		assertNull(cm.getFutureMeeting(0));
 	}
 	
 	@Test

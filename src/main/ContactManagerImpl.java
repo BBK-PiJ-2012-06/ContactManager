@@ -374,6 +374,8 @@ public class ContactManagerImpl implements ContactManager {
 		Contact contact = new ContactImpl(id, name, notes);
 		knownContacts.add(contact);
 		contactIds.put(id, contact);
+		contactAttended.put(contact, new TreeSet<PastMeeting>(CalendarUtil.getMeetingComparator()));
+		contactAttending.put(contact, new TreeSet<FutureMeeting>(CalendarUtil.getMeetingComparator()));
 	}
 
 	@Override
