@@ -247,7 +247,10 @@ public class ContactManagerImpl implements ContactManager {
 			throw new NullPointerException("Text is null");
 		}
 		
-		// Ensure all contacts are known... 
+		// Ensure contacts not empty and all contacts are known... 
+		if(contacts.isEmpty()) {
+			throw new IllegalArgumentException("Set of contacts is empty");
+		}
 		try {
 			checkContactsAreKnown(contacts);
 		} catch (IllegalArgumentException e) {
