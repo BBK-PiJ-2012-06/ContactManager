@@ -193,7 +193,7 @@ public class DataManagerImpl implements DataManager {
 		Node contactsRoot = doc.getElementsByTagName("Contacts").item(0);
 		
 		//Contact data is stored in the children of contactsRoot, so for(each of these children...)
-		for(Node contactNode = contactsRoot.getFirstChild(); contactNode != null; contactNode.getNextSibling()) {
+		for(Node contactNode = contactsRoot.getFirstChild(); contactNode != null; contactNode = contactNode.getNextSibling()) {
 			
 			// Necessary to ensure we are dealing with an element type node 
 			// -- there are apparently hidden text nodes to help make the xml readable I think
@@ -226,7 +226,7 @@ public class DataManagerImpl implements DataManager {
 		Node meetingsRoot = doc.getElementsByTagName("PastMeetings").item(0);
 		
 		//PastMeeting data is stored in the children of meetingsRoot, so for(each of these children...)
-		for(Node meetingNode = meetingsRoot.getFirstChild(); meetingNode != null; meetingNode.getNextSibling()) {
+		for(Node meetingNode = meetingsRoot.getFirstChild(); meetingNode != null; meetingNode = meetingNode.getNextSibling()) {
 			
 			if(meetingNode.getNodeType() == Node.ELEMENT_NODE) {
 				//Meeting IDs are stored as the element's attribute
@@ -256,7 +256,7 @@ public class DataManagerImpl implements DataManager {
 		Node meetingsRoot = doc.getElementsByTagName("FutureMeetings").item(0);
 		
 		//FutureMeeting data is stored in the children of meetingsRoot, so for(each of these children...)
-		for(Node meetingNode = meetingsRoot.getFirstChild(); meetingNode != null; meetingNode.getNextSibling()) {
+		for(Node meetingNode = meetingsRoot.getFirstChild(); meetingNode != null; meetingNode = meetingNode.getNextSibling()) {
 			
 			if(meetingNode.getNodeType() == Node.ELEMENT_NODE) {
 				//Meeting IDs are stored as the element's attribute
@@ -312,7 +312,7 @@ public class DataManagerImpl implements DataManager {
 		Node contactsNode = ((Element) meetingNode).getElementsByTagName("contacts").item(0);
 		
 		//Iterate through the contactNodeList using siblings of the first child node
-		for(Node contactNode = contactsNode.getFirstChild(); contactNode != null; contactNode.getNextSibling()) {
+		for(Node contactNode = contactsNode.getFirstChild(); contactNode != null; contactNode = contactNode.getNextSibling()) {
 			if(contactNode.getNodeType() == Node.ELEMENT_NODE) {
 				//Get the contact's ID from the node attribute
 				int id = getIdAttr(contactNode);
