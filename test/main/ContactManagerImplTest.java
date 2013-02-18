@@ -29,10 +29,10 @@ public class ContactManagerImplTest {
 	
 	@BeforeClass
 	public static final void onlyOnce() {
-        alice = new ContactImpl(0, "Alice");
-        bob = new ContactImpl(1, "Bob", "Bob has notes");
-        charlie = new ContactImpl(99, "Charlie", "Charlie is unknown");
-        dave = new ContactImpl(2, "Dave", "Dave is known but not associated with any meetings");
+        alice = new ContactImpl(0, "alice");  // Lower case names make string searching more interesting
+        bob = new ContactImpl(1, "bob", "bob has notes");
+        charlie = new ContactImpl(99, "charlie", "charlie is unknown");
+        dave = new ContactImpl(2, "dave", "dave is known but not associated with any meetings");
         contacts = new HashSet<Contact>();
         contacts.add(alice);
         contacts.add(bob);
@@ -81,7 +81,7 @@ public class ContactManagerImplTest {
 		int bobsId = bobsList.get(0).getID();
 		
 		assertEquals(1, bobsId);
-		assertEquals("Bob has notes", bobsNotes);
+		assertEquals("bob has notes", bobsNotes);
 	}
 	
 	@Test(expected = NullPointerException.class)
@@ -264,22 +264,34 @@ public class ContactManagerImplTest {
 		assertTrue(returnedList.indexOf(p1) < returnedList.indexOf(p2));
 	}
 
-
-
-	/**
-	 * Test method for {@link main.ContactManagerImpl#getContacts(int[])}.
-	 */
 	@Test
-	public final void testGetContactsIntArray() {
-		fail("Not yet implemented"); // TODO
+	public final void testGetContactsVarArgs() {
+		Set<Contact> returnedSet = cm.getContacts(alice.getID(), bob.getID(), dave.getID());
+		
+		assertTrue(returnedSet.contains(alice));
+		assertTrue(returnedSet.contains(bob));
+		assertTrue(returnedSet.contains(dave));
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void testGetContactVarArgsUnknownContact() {
+		cm.getContacts(alice.getID(), bob.getID(), charlie.getID(), dave.getID());
 	}
 
-	/**
-	 * Test method for {@link main.ContactManagerImpl#getContacts(java.lang.String)}.
-	 */
 	@Test
-	public final void testGetContactsString() {
-		fail("Not yet implemented"); // TODO
+	public final void testGetContactsNameSearch() {
+		Set<Contact> aliceAndDave = cm.getContacts("a");
+		Set<Contact> shouldBeEmpty = cm.getContacts("bobo");
+		
+		assertTrue(aliceAndDave.contains(alice));
+		assertTrue(aliceAndDave.contains(dave));
+		assertTrue(shouldBeEmpty.isEmpty());
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public final void testGetContactsNameSearchNullString() {
+		String nullStr = null;
+		cm.getContacts(nullStr);
 	}
 
 	/**
