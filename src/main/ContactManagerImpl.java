@@ -78,8 +78,9 @@ public class ContactManagerImpl implements ContactManager {
 			for(Contact attendee : meeting.getContacts()) {
 				contactAttended.get(attendee).add(meeting);
 			}
-			// Initialise the set of meetings that occurred on this date
+			// Initialise the set of meetings that occurred on this date and add this meeting
 			meetingsOnDate.put(CalendarUtil.trimTime(meeting.getDate()), new TreeSet<Meeting>(CalendarUtil.getMeetingComparator()));
+			meetingsOnDate.get(CalendarUtil.trimTime(meeting.getDate())).add(meeting);
 		}
 		// Future meetings
 		for(FutureMeeting meeting : futureMeetings) {
@@ -87,6 +88,9 @@ public class ContactManagerImpl implements ContactManager {
 			for(Contact attendee : meeting.getContacts()) {
 				contactAttending.get(attendee).add(meeting);
 			}
+			// Initialise the set of meetings that occurring on this date and add this meeting
+			meetingsOnDate.put(CalendarUtil.trimTime(meeting.getDate()), new TreeSet<Meeting>(CalendarUtil.getMeetingComparator()));
+			meetingsOnDate.get(CalendarUtil.trimTime(meeting.getDate())).add(meeting);
 		}
 	}
 
@@ -106,9 +110,26 @@ public class ContactManagerImpl implements ContactManager {
 			throw new IllegalArgumentException("Given contacts contains unknown contact", e);
 		}
 		
-		// All is well, add the meeting
+		// Obtain an ID
 		int id = nextMeetingId++;
 		FutureMeeting newMeeting = new FutureMeetingImpl(id, contacts, date);
+		
+		// Make sure this particular meeting has not already been added
+		Set<Meeting> matchingMeetings = meetingsOnDate.get(CalendarUtil.trimTime(date));
+		
+		// Check all meetings that occurred on the same day as newMeeting
+		if(matchingMeetings != null) {
+			for(Meeting matchingMeeting : matchingMeetings) {
+				
+				// If the matchingMeeting occurs at the same time and with the same contacts as the newMeeting
+				if(matchingMeeting.getDate().equals(date) && matchingMeeting.getContacts().equals(contacts)) {
+					// Make id available again
+					nextMeetingId--;
+					throw new IllegalArgumentException("A future meeting already exists on the given date and with the given contacts");
+				}
+			}			
+		}
+		
 		futureMeetings.add(newMeeting);
 		futureMeetingIds.put(id, newMeeting);
 		
@@ -261,20 +282,27 @@ public class ContactManagerImpl implements ContactManager {
 		Set<Meeting> matchingMeetings = meetingsOnDate.get(CalendarUtil.trimTime(date));
 		
 		// Check all meetings that occurred on the same day as newMeeting
-		for(Meeting matchingMeeting : matchingMeetings) {
-			
-			// If the matchingMeeting occurs at the same time and with the same contacts as the newMeeting
-			if(matchingMeeting.getDate().equals(date) && matchingMeeting.getContacts().equals(contacts)) {
-				// Make id available again
-				nextMeetingId--;
-				throw new IllegalArgumentException("A past meeting already exists on the given date and with the given contacts");
-			}
+		if(matchingMeetings != null) {
+			for(Meeting matchingMeeting : matchingMeetings) {
+				
+				// If the matchingMeeting occurs at the same time and with the same contacts as the newMeeting
+				if(matchingMeeting.getDate().equals(date) && matchingMeeting.getContacts().equals(contacts)) {
+					// Make id available again
+					nextMeetingId--;
+					throw new IllegalArgumentException("A past meeting already exists on the given date and with the given contacts");
+				}
+			}			
 		}
-		
+
 		// newMeeting is OK, add to collections
 		pastMeetings.add(newMeeting);
 		pastMeetingIds.put(id, newMeeting);
-		meetingsOnDate.get(CalendarUtil.trimTime(date)).add(newMeeting);
+		if(meetingsOnDate.containsKey(CalendarUtil.trimTime(date))) {
+			meetingsOnDate.get(CalendarUtil.trimTime(date)).add(newMeeting);	
+		} else {
+			meetingsOnDate.get(CalendarUtil.trimTime(date))
+		}
+		
 		for(Contact contact : contacts) {
 			contactAttended.get(contact).add(newMeeting);
 		}
