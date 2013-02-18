@@ -22,7 +22,7 @@ public class ContactManagerImplTest {
 	private static Calendar past1, past2, future1, future2;
 	private static PastMeeting p1, p2;
 	private static FutureMeeting f1, f2;
-	private static Contact alice, bob, charlie;
+	private static Contact alice, bob, charlie, dave;
 	private static Set<Contact> contacts;
 	private static Set<Contact> unknownContacts;
 	private static Set<Contact> emptyContacts;
@@ -31,7 +31,8 @@ public class ContactManagerImplTest {
 	public static final void onlyOnce() {
         alice = new ContactImpl(0, "Alice");
         bob = new ContactImpl(1, "Bob", "Bob has notes");
-        charlie = new ContactImpl(2, "Charlie", "Charlie is unknown");
+        charlie = new ContactImpl(99, "Charlie", "Charlie is unknown");
+        dave = new ContactImpl(2, "Dave", "Dave is known but not associated with any meetings");
         contacts = new HashSet<Contact>();
         contacts.add(alice);
         contacts.add(bob);
@@ -44,16 +45,18 @@ public class ContactManagerImplTest {
         future1.set(2100, Calendar.JANUARY, 1, 00, 00);
         future2 = Calendar.getInstance();
         future2.clear();
-        future2.set(2101, Calendar.JANUARY, 1, 00, 00);   
+        future2.set(2100, Calendar.JANUARY, 1, 01, 00);   
         f1 = new FutureMeetingImpl(0, contacts, future1);
+        f2 = new FutureMeetingImpl(1, contacts, future2);
         
 		past1 = Calendar.getInstance();
         past1.clear();
         past1.set(1900, Calendar.JANUARY, 1, 00, 00);
         past2 = Calendar.getInstance();
         past2.clear();
-        past2.set(1901, Calendar.JANUARY, 1, 00, 00);
-        p1 = new PastMeetingImpl(1, contacts, past1, "");
+        past2.set(1900, Calendar.JANUARY, 1, 01, 00);
+        p1 = new PastMeetingImpl(2, contacts, past1, "");
+        p2 = new PastMeetingImpl(3, contacts, past2, "");
         
         cm = new ContactManagerImpl();
 	}
@@ -69,6 +72,7 @@ public class ContactManagerImplTest {
 	public final void testAddThenGetNewContact() {		
 		cm.addNewContact(alice.getName(), alice.getNotes());
 		cm.addNewContact(bob.getName(), bob.getNotes());
+		cm.addNewContact(dave.getName(), dave.getNotes());
 		
 		assertEquals(1, cm.getContacts(alice.getID()).size());
 		
@@ -95,7 +99,9 @@ public class ContactManagerImplTest {
 	@Test
 	public final void testAddFutureMeeting() {
 		int id0 = cm.addFutureMeeting(contacts, future1);
+		int id1 = cm.addFutureMeeting(contacts, future2);
 		assertEquals(0, id0);
+		assertEquals(1, id1);
 	}
 		
 	@Test(expected = IllegalArgumentException.class)
@@ -116,7 +122,8 @@ public class ContactManagerImplTest {
 
 	@Test
 	public final void testAddNewPastMeeting() {
-		cm.addNewPastMeeting(p1.getContacts(), p1.getDate(), p1.getNotes());
+		cm.addNewPastMeeting(contacts, past1, "");
+		cm.addNewPastMeeting(contacts, past2, "");
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -132,7 +139,7 @@ public class ContactManagerImplTest {
 	@Test(expected = NullPointerException.class)
 	public final void testAddNewPastMeetingNullArg() {
 		String nullStr = null;
-		cm.addNewPastMeeting(unknownContacts, past1, nullStr);
+		cm.addNewPastMeeting(contacts, past1, nullStr);
 	}
 
 	@Test
@@ -153,25 +160,82 @@ public class ContactManagerImplTest {
 	@Test
 	public final void testGetFutureMeeting() {
 		assertEquals(f1, cm.getFutureMeeting(f1.getID()));
+		assertEquals(f2, cm.getFutureMeeting(f2.getID()));
 	}
 
 	@Test
 	public final void testGetMeeting() {
-		assertEquals(f1, cm.getMeeting(0));
-		assertEquals(p1, cm.getMeeting(1));
+		assertEquals(f1, cm.getMeeting(f1.getID()));
+		assertEquals(p1, cm.getMeeting(p1.getID()));
 	}
 
 	@Test
 	public final void testGetFutureMeetingListContact() {
-		fail("Not yet implemented"); // TODO
+		List<FutureMeeting> expectedList = new LinkedList<FutureMeeting>();
+		expectedList.add(f1);
+		expectedList.add(f2);
+		
+		assertEquals(expectedList, cm.getFutureMeetingList(alice));
+		assertEquals(expectedList, cm.getFutureMeetingList(bob));
 	}
-
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void testGetFutureMeetingListUnknownContact() {
+		cm.getFutureMeetingList(charlie);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public final void testGetFutureMeetingListNullContact() {
+		Contact nullContact = null;
+		cm.getFutureMeetingList(nullContact);
+	}
+	
+	@Test
+	public final void testGetFutureMeetingListExpectEmptyList() {
+		assertTrue(cm.getFutureMeetingList(dave).isEmpty());
+	}
+	
+	@Test
+	public final void testGetFutureMeetingListChronological() {
+		List<Meeting> returnedList = cm.getFutureMeetingList(alice);
+		
+		assertTrue(returnedList.indexOf(f1) < returnedList.indexOf(f2));
+	}
+	
+	/**^^^^^^^^
+	 * Returns the list of future meetings scheduled with this contact.
+	 * 
+	 * If there are none, the returned list will be empty. Otherwise, the list
+	 * will be chronologically sorted and will not contain any duplicates.
+	 * 
+	 * @param contact one of the user's contacts
+	 * @return the list of future meeting(s) scheduled with this contact (maybe empty)
+	 * @throws IllegalArgumentException if the contact does not exist
+	 **/
 	/**
-	 * Test method for {@link main.ContactManagerImpl#getFutureMeetingList(java.util.Calendar)}.
-	 */
+	 * Returns the list of meetings that are scheduled for, or that took place
+	 * on, the specified date (ignoring the time).
+	 * NB, although the name of this method is misleading, it will not be changed
+	 * as this would violate the method's contract.
+	 * 
+	 * If there are none, the returned list will be empty. Otherwise, the list
+	 * will be chronologically sorted and will not contain any duplicates.
+	 * 
+	 * @param date the date
+	 * @return the list of meetings (maybe empty)
+	 **/
 	@Test
 	public final void testGetFutureMeetingListCalendar() {
-		fail("Not yet implemented"); // TODO
+		List<Meeting> expectedList = new LinkedList<Meeting>();
+		expectedList.add(f1);
+		assertEquals(expectedList, cm.getFutureMeetingList(future1));
+		
+		expectedList.clear();
+		expectedList.add(p1);
+		assertEquals(expectedList, cm.getFutureMeetingList(past1));
+		
+		assertTrue(cm.getFutureMeetingList(future2).isEmpty());
+		assertTrue(cm.getFutureMeetingList(past2).isEmpty());
 	}
 
 	/**

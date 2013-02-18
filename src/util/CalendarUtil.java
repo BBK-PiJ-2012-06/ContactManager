@@ -106,10 +106,16 @@ public class CalendarUtil {
 	 * @return a calendar set to midnight on the same date as the given calendar
 	 */
 	public static Calendar trimTime(Calendar date) {
-		date.set(Calendar.HOUR_OF_DAY, 0);
-		date.set(Calendar.MINUTE, 0);
-		date.set(Calendar.SECOND, 0);
-		date.set(Calendar.MILLISECOND, 0);
-		return date;
+		Calendar trimmedDate = Calendar.getInstance();
+		trimmedDate.clear();
+		trimmedDate.set(Calendar.YEAR, date.get(Calendar.YEAR));
+		trimmedDate.set(Calendar.MONTH, date.get(Calendar.MONTH));
+		trimmedDate.set(Calendar.DAY_OF_MONTH, date.get(Calendar.DAY_OF_MONTH));
+		
+		trimmedDate.set(Calendar.HOUR_OF_DAY, 0);
+		trimmedDate.set(Calendar.MINUTE, 0);
+		trimmedDate.set(Calendar.SECOND, 0);
+		trimmedDate.set(Calendar.MILLISECOND, 0);
+		return trimmedDate;
 	}
 }

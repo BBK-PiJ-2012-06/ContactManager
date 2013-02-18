@@ -125,7 +125,7 @@ public class ContactManagerImpl implements ContactManager {
 			for(Meeting matchingMeeting : matchingMeetings) {
 				
 				// If the matchingMeeting occurs at the same time and with the same contacts as the newMeeting
-				if(matchingMeeting.getDate().equals(date) && matchingMeeting.getContacts().equals(contacts)) {
+				if(matchingMeeting.getDate().compareTo(date) == 0 && matchingMeeting.getContacts().equals(contacts)) {
 					// Make id available again
 					nextMeetingId--;
 					throw new IllegalArgumentException("A future meeting already exists on the given date and with the given contacts");
@@ -303,7 +303,7 @@ public class ContactManagerImpl implements ContactManager {
 			for(Meeting matchingMeeting : matchingMeetings) {
 				
 				// If the matchingMeeting occurs at the same time and with the same contacts as the newMeeting
-				if(matchingMeeting.getDate().equals(date) && matchingMeeting.getContacts().equals(contacts)) {
+				if(matchingMeeting.getDate().compareTo(date) == 0 && matchingMeeting.getContacts().equals(contacts)) {
 					// Make id available again
 					nextMeetingId--;
 					throw new IllegalArgumentException("A past meeting already exists on the given date and with the given contacts");
