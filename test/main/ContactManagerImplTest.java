@@ -39,21 +39,21 @@ public class ContactManagerImplTest {
         unknownContacts.add(charlie);
         emptyContacts = new HashSet<Contact>();
         
-		past1 = Calendar.getInstance();
-        past1.clear();
-        past1.set(1900, Calendar.JANUARY, 1, 00, 00);
-        past2 = Calendar.getInstance();
-        past2.clear();
-        past2.set(1901, Calendar.JANUARY, 1, 00, 00);
-        p1 = new PastMeetingImpl(0, contacts, past1, "");
-        
         future1 = Calendar.getInstance();
         future1.clear();
         future1.set(2100, Calendar.JANUARY, 1, 00, 00);
         future2 = Calendar.getInstance();
         future2.clear();
         future2.set(2101, Calendar.JANUARY, 1, 00, 00);   
-        f1 = new FutureMeetingImpl(1, contacts, future1);
+        f1 = new FutureMeetingImpl(0, contacts, future1);
+        
+		past1 = Calendar.getInstance();
+        past1.clear();
+        past1.set(1900, Calendar.JANUARY, 1, 00, 00);
+        past2 = Calendar.getInstance();
+        past2.clear();
+        past2.set(1901, Calendar.JANUARY, 1, 00, 00);
+        p1 = new PastMeetingImpl(1, contacts, past1, "");
         
         cm = new ContactManagerImpl();
 	}
@@ -94,11 +94,8 @@ public class ContactManagerImplTest {
 	
 	@Test
 	public final void testAddFutureMeeting() {
-		int id1 = cm.addFutureMeeting(contacts, future1);
-		int id2 = cm.addFutureMeeting(contacts, future2);
-		
-		assertEquals(0, id1);
-		assertEquals(1, id2);
+		int id0 = cm.addFutureMeeting(contacts, future1);
+		assertEquals(0, id0);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -140,22 +137,22 @@ public class ContactManagerImplTest {
 	@Test
 	public void testAddMeetingNotes() {
 		cm.addMeetingNotes(p1.getID(), "Some notes");
-		assertEquals("Some notes", cm.getPastMeeting(p1.getID()));
-	}
-	/**
-	 * Test method for {@link main.ContactManagerImpl#getFutureMeeting(int)}.
-	 */
-	@Test
-	public final void testGetFutureMeeting() {
-		fail("Not yet implemented"); // TODO
+		
+		// Keep p1 up to date for comparison
+		((PastMeetingImpl) p1).addNotes("Some notes");
+		
+		assertEquals(p1.getNotes(), cm.getPastMeeting(p1.getID()).getNotes());
 	}
 
-	/**
-	 * Test method for {@link main.ContactManagerImpl#getMeeting(int)}.
-	 */
+	@Test
+	public final void testGetFutureMeeting() {
+		assertEquals(f1, cm.getFutureMeeting(f1.getID()));
+	}
+
 	@Test
 	public final void testGetMeeting() {
-		fail("Not yet implemented"); // TODO
+		assertEquals(f1, cm.getMeeting(0));
+		assertEquals(p1, cm.getMeeting(1));
 	}
 
 	/**

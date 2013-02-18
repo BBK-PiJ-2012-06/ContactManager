@@ -183,7 +183,7 @@ public class ContactManagerImpl implements ContactManager {
 		Meeting requestedMeeting = pastMeetingIds.get(id);
 		
 		if(requestedMeeting == null) {
-			return (Meeting) futureMeetingIds.get(id);
+			return futureMeetingIds.get(id);
 		}
 		return requestedMeeting; 
 	}
