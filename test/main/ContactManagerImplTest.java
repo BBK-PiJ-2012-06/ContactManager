@@ -11,8 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -42,19 +40,19 @@ public class ContactManagerImplTest {
         
         future1 = Calendar.getInstance();
         future1.clear();
-        future1.set(2100, Calendar.JANUARY, 1, 00, 00);
+        future1.set(2100, Calendar.JANUARY, 1, 12, 00);
         future2 = Calendar.getInstance();
         future2.clear();
-        future2.set(2100, Calendar.JANUARY, 1, 01, 00);   
+        future2.set(2100, Calendar.JANUARY, 1, 12, 30);   
         f1 = new FutureMeetingImpl(0, contacts, future1);
         f2 = new FutureMeetingImpl(1, contacts, future2);
         
 		past1 = Calendar.getInstance();
         past1.clear();
-        past1.set(1900, Calendar.JANUARY, 1, 00, 00);
+        past1.set(1900, Calendar.JANUARY, 1, 12, 00);
         past2 = Calendar.getInstance();
         past2.clear();
-        past2.set(1900, Calendar.JANUARY, 1, 01, 00);
+        past2.set(1900, Calendar.JANUARY, 1, 12, 30);
         p1 = new PastMeetingImpl(2, contacts, past1, "");
         p2 = new PastMeetingImpl(3, contacts, past2, "");
         
@@ -207,11 +205,13 @@ public class ContactManagerImplTest {
 		List<Meeting> expectedList = new LinkedList<Meeting>();
 		expectedList.add(f1);
 		expectedList.add(f2);
+		
 		assertEquals(expectedList, cm.getFutureMeetingList(future1));
 		
 		expectedList.clear();
 		expectedList.add(p1);
 		expectedList.add(p2);
+		
 		assertEquals(expectedList, cm.getFutureMeetingList(past1));
 		
 		Calendar dayOff = Calendar.getInstance();

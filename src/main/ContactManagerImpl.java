@@ -7,7 +7,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import util.CalendarUtil;
+import static util.CalendarUtil.*;
 import util.DataManager;
 import util.DataManagerImpl;
 
@@ -69,8 +69,8 @@ public class ContactManagerImpl implements ContactManager {
 			// Initialise the set of past and future meetings attended,
 			// using tree set to keep meetings ordered chronologically
 			// (see http://java2novice.com/java-collections-and-util/treeset/comparator-object/)
-			contactAttended.put(contact, new TreeSet<PastMeeting>(CalendarUtil.getMeetingComparator()));
-			contactAttending.put(contact, new TreeSet<FutureMeeting>(CalendarUtil.getMeetingComparator()));
+			contactAttended.put(contact, new TreeSet<PastMeeting>(getMeetingComparator()));
+			contactAttending.put(contact, new TreeSet<FutureMeeting>(getMeetingComparator()));
 		}
 		// Past meetings
 		for(PastMeeting meeting : pastMeetings) {
@@ -78,9 +78,12 @@ public class ContactManagerImpl implements ContactManager {
 			for(Contact attendee : meeting.getContacts()) {
 				contactAttended.get(attendee).add(meeting);
 			}
-			// Initialise the set of meetings that occurred on this date and add this meeting
-			meetingsOnDate.put(CalendarUtil.trimTime(meeting.getDate()), new TreeSet<Meeting>(CalendarUtil.getMeetingComparator()));
-			meetingsOnDate.get(CalendarUtil.trimTime(meeting.getDate())).add(meeting);
+			// Initialise the set of meetings that occurred on this date if not already initialised...
+			if(!meetingsOnDate.containsKey(trimTime(meeting.getDate()))) {
+				meetingsOnDate.put(trimTime(meeting.getDate()), new TreeSet<Meeting>(getMeetingComparator()));
+			}
+			//...and add this meeting
+			meetingsOnDate.get(trimTime(meeting.getDate())).add(meeting);
 		}
 		// Future meetings
 		for(FutureMeeting meeting : futureMeetings) {
@@ -88,17 +91,20 @@ public class ContactManagerImpl implements ContactManager {
 			for(Contact attendee : meeting.getContacts()) {
 				contactAttending.get(attendee).add(meeting);
 			}
-			// Initialise the set of meetings that occurring on this date and add this meeting
-			meetingsOnDate.put(CalendarUtil.trimTime(meeting.getDate()), new TreeSet<Meeting>(CalendarUtil.getMeetingComparator()));
-			meetingsOnDate.get(CalendarUtil.trimTime(meeting.getDate())).add(meeting);
+			// Initialise the set of meetings that occurred on this date if not already initialised...
+			if(!meetingsOnDate.containsKey(trimTime(meeting.getDate()))) {
+				meetingsOnDate.put(trimTime(meeting.getDate()), new TreeSet<Meeting>(getMeetingComparator()));
+			}
+			//...and add this meeting
+			meetingsOnDate.get(trimTime(meeting.getDate())).add(meeting);
 		}
 	}
 
 	@Override
 	public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
 		// Check that the given date is in the future
-		if (!CalendarUtil.isInFuture(date)) {
-			throw new IllegalArgumentException("Given date, " + CalendarUtil.format(date) + ", is not in the future");
+		if (!isInFuture(date)) {
+			throw new IllegalArgumentException("Given date, " + format(date) + ", is not in the future");
 		}
 
 		// Make sure contacts is not empty and each contact is known
@@ -118,7 +124,7 @@ public class ContactManagerImpl implements ContactManager {
 		FutureMeeting newMeeting = new FutureMeetingImpl(id, contacts, date);
 		
 		// Make sure this particular meeting has not already been added
-		Set<Meeting> matchingMeetings = meetingsOnDate.get(CalendarUtil.trimTime(date));
+		Set<Meeting> matchingMeetings = meetingsOnDate.get(trimTime(date));
 		
 		// Check all meetings that occurred on the same day as newMeeting
 		if(matchingMeetings != null) {
@@ -137,11 +143,11 @@ public class ContactManagerImpl implements ContactManager {
 		futureMeetings.add(newMeeting);
 		futureMeetingIds.put(id, newMeeting);
 		
-		if(!meetingsOnDate.containsKey(CalendarUtil.trimTime(date))) {
+		if(!meetingsOnDate.containsKey(trimTime(date))) {
 			// Initialise mapping for this date
-			meetingsOnDate.put(CalendarUtil.trimTime(date), new TreeSet<Meeting>(CalendarUtil.getMeetingComparator()));
+			meetingsOnDate.put(trimTime(date), new TreeSet<Meeting>(getMeetingComparator()));
 		}
-		meetingsOnDate.get(CalendarUtil.trimTime(date)).add(newMeeting);
+		meetingsOnDate.get(trimTime(date)).add(newMeeting);
 		
 		for(Contact contact : contacts) {
 			contactAttending.get(contact).add(newMeeting);
@@ -221,7 +227,7 @@ public class ContactManagerImpl implements ContactManager {
 	@Override
 	public List<Meeting> getFutureMeetingList(Calendar date) {
 		// Fetch meetings on this date
-		Set<Meeting> requestedMeetings = meetingsOnDate.get(CalendarUtil.trimTime(date));
+		Set<Meeting> requestedMeetings = meetingsOnDate.get(trimTime(date));
 		
 		// If no meetings on this date, requestedMeetings is null
 		if(requestedMeetings == null) {
@@ -271,7 +277,7 @@ public class ContactManagerImpl implements ContactManager {
 			throw new IllegalArgumentException("Contacts contains an unknown contact", e);
 		}
 		// ...and the date is in the past
-		if(!CalendarUtil.isInPast(date)) {
+		if(!isInPast(date)) {
 			throw new IllegalArgumentException("Date is not in past");
 		}
 		
@@ -296,7 +302,7 @@ public class ContactManagerImpl implements ContactManager {
 		PastMeeting newMeeting = new PastMeetingImpl(id, contacts, date, text);
 		
 		// Make sure this particular meeting has not already been added
-		Set<Meeting> matchingMeetings = meetingsOnDate.get(CalendarUtil.trimTime(date));
+		Set<Meeting> matchingMeetings = meetingsOnDate.get(trimTime(date));
 		
 		// Check all meetings that occurred on the same day as newMeeting
 		if(matchingMeetings != null) {
@@ -315,11 +321,11 @@ public class ContactManagerImpl implements ContactManager {
 		pastMeetings.add(newMeeting);
 		pastMeetingIds.put(id, newMeeting);
 		
-		if(!meetingsOnDate.containsKey(CalendarUtil.trimTime(date))) {
+		if(!meetingsOnDate.containsKey(trimTime(date))) {
 			// Initialise mapping for this date
-			meetingsOnDate.put(CalendarUtil.trimTime(date), new TreeSet<Meeting>(CalendarUtil.getMeetingComparator()));
+			meetingsOnDate.put(trimTime(date), new TreeSet<Meeting>(getMeetingComparator()));
 		}
-		meetingsOnDate.get(CalendarUtil.trimTime(date)).add(newMeeting);
+		meetingsOnDate.get(trimTime(date)).add(newMeeting);
 		
 		for(Contact contact : contacts) {
 			contactAttended.get(contact).add(newMeeting);
@@ -342,7 +348,7 @@ public class ContactManagerImpl implements ContactManager {
 		} else if(futureMeetingIds.containsKey(id)) {
 			// Ensure this meeting has occurred
 			Meeting meeting = futureMeetingIds.remove(id);
-			if(!CalendarUtil.isInPast(meeting.getDate())) {
+			if(!isInPast(meeting.getDate())) {
 				throw new IllegalStateException("Meeting with ID = " + id + " is a future meeting");
 			}
 			
@@ -351,7 +357,7 @@ public class ContactManagerImpl implements ContactManager {
 			for(Contact contact : meeting.getContacts()) {
 				contactAttending.get(contact).remove(meeting);
 			}
-			meetingsOnDate.get(CalendarUtil.trimTime(meeting.getDate())).remove(meeting);
+			meetingsOnDate.get(trimTime(meeting.getDate())).remove(meeting);
 			
 			// Initialise a new past meeting 
 			PastMeeting pastMeeting = new PastMeetingImpl(meeting, text);
@@ -359,13 +365,13 @@ public class ContactManagerImpl implements ContactManager {
 			// Add to collections
 			pastMeetings.add(pastMeeting);
 			pastMeetingIds.put(id, pastMeeting);
-			meetingsOnDate.get(CalendarUtil.trimTime(pastMeeting.getDate())).add(pastMeeting);
+			meetingsOnDate.get(trimTime(pastMeeting.getDate())).add(pastMeeting);
 			
 			for(Contact contact : pastMeeting.getContacts()) {
 				Set<PastMeeting> meetingsAttended = contactAttended.get(contact); 
 				// May be no meetings attended (this meeting may have been the first attended by this contact)
 				if(meetingsAttended == null) {
-					meetingsAttended = new TreeSet<PastMeeting>(CalendarUtil.getMeetingComparator());
+					meetingsAttended = new TreeSet<PastMeeting>(getMeetingComparator());
 				}
 				meetingsAttended.add(pastMeeting);
 			}
@@ -391,8 +397,8 @@ public class ContactManagerImpl implements ContactManager {
 		Contact contact = new ContactImpl(id, name, notes);
 		knownContacts.add(contact);
 		contactIds.put(id, contact);
-		contactAttended.put(contact, new TreeSet<PastMeeting>(CalendarUtil.getMeetingComparator()));
-		contactAttending.put(contact, new TreeSet<FutureMeeting>(CalendarUtil.getMeetingComparator()));
+		contactAttended.put(contact, new TreeSet<PastMeeting>(getMeetingComparator()));
+		contactAttending.put(contact, new TreeSet<FutureMeeting>(getMeetingComparator()));
 	}
 
 	@Override
