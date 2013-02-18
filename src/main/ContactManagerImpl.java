@@ -297,11 +297,12 @@ public class ContactManagerImpl implements ContactManager {
 		// newMeeting is OK, add to collections
 		pastMeetings.add(newMeeting);
 		pastMeetingIds.put(id, newMeeting);
-		if(meetingsOnDate.containsKey(CalendarUtil.trimTime(date))) {
-			meetingsOnDate.get(CalendarUtil.trimTime(date)).add(newMeeting);	
-		} else {
-			meetingsOnDate.get(CalendarUtil.trimTime(date))
+		
+		if(!meetingsOnDate.containsKey(CalendarUtil.trimTime(date))) {
+			// Initialise mapping for this date
+			meetingsOnDate.put(CalendarUtil.trimTime(date), new TreeSet<Meeting>(CalendarUtil.getMeetingComparator()));
 		}
+		meetingsOnDate.get(CalendarUtil.trimTime(date)).add(newMeeting);
 		
 		for(Contact contact : contacts) {
 			contactAttended.get(contact).add(newMeeting);
