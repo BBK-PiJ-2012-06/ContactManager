@@ -231,12 +231,37 @@ public class ContactManagerImplTest {
 		assertTrue(returnedList.indexOf(f1) < returnedList.indexOf(f2));
 	}
 
-	/**
-	 * Test method for {@link main.ContactManagerImpl#getPastMeetingList(main.Contact)}.
-	 */
 	@Test
 	public final void testGetPastMeetingList() {
-		fail("Not yet implemented"); // TODO
+		List<PastMeeting> expectedList = new LinkedList<PastMeeting>();
+		expectedList.add(p1);
+		expectedList.add(p2);
+		
+		assertEquals(expectedList, cm.getPastMeetingList(alice));
+		assertEquals(expectedList, cm.getPastMeetingList(bob));
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void testGetPastMeetingListUnknownContact() {
+		cm.getPastMeetingList(charlie);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public final void testGetPastMeetingListNullContact() {
+		Contact nullContact = null;
+		cm.getPastMeetingList(nullContact);
+	}
+	
+	@Test
+	public final void testGetPastMeetingListExpectEmptyList() {
+		assertTrue(cm.getPastMeetingList(dave).isEmpty());
+	}
+	
+	@Test
+	public final void testGetPastMeetingListChronological() {
+		List<PastMeeting> returnedList = cm.getPastMeetingList(alice);
+		
+		assertTrue(returnedList.indexOf(p1) < returnedList.indexOf(p2));
 	}
 
 
