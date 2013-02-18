@@ -202,40 +202,33 @@ public class ContactManagerImplTest {
 		assertTrue(returnedList.indexOf(f1) < returnedList.indexOf(f2));
 	}
 	
-	/**^^^^^^^^
-	 * Returns the list of future meetings scheduled with this contact.
-	 * 
-	 * If there are none, the returned list will be empty. Otherwise, the list
-	 * will be chronologically sorted and will not contain any duplicates.
-	 * 
-	 * @param contact one of the user's contacts
-	 * @return the list of future meeting(s) scheduled with this contact (maybe empty)
-	 * @throws IllegalArgumentException if the contact does not exist
-	 **/
-	/**
-	 * Returns the list of meetings that are scheduled for, or that took place
-	 * on, the specified date (ignoring the time).
-	 * NB, although the name of this method is misleading, it will not be changed
-	 * as this would violate the method's contract.
-	 * 
-	 * If there are none, the returned list will be empty. Otherwise, the list
-	 * will be chronologically sorted and will not contain any duplicates.
-	 * 
-	 * @param date the date
-	 * @return the list of meetings (maybe empty)
-	 **/
 	@Test
 	public final void testGetFutureMeetingListCalendar() {
 		List<Meeting> expectedList = new LinkedList<Meeting>();
 		expectedList.add(f1);
+		expectedList.add(f2);
 		assertEquals(expectedList, cm.getFutureMeetingList(future1));
 		
 		expectedList.clear();
 		expectedList.add(p1);
+		expectedList.add(p2);
 		assertEquals(expectedList, cm.getFutureMeetingList(past1));
 		
-		assertTrue(cm.getFutureMeetingList(future2).isEmpty());
-		assertTrue(cm.getFutureMeetingList(past2).isEmpty());
+		Calendar dayOff = Calendar.getInstance();
+		assertTrue(cm.getFutureMeetingList(dayOff).isEmpty());
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public final void testGetFutureMeetingListNullDate() {
+		Calendar nullDate = null;
+		cm.getFutureMeetingList(nullDate);
+	}
+	
+	@Test
+	public final void testGetFutureMeetingListCalendarChronological() {
+		List<Meeting> returnedList = cm.getFutureMeetingList(future1);
+		
+		assertTrue(returnedList.indexOf(f1) < returnedList.indexOf(f2));
 	}
 
 	/**
